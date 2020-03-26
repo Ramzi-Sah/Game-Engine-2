@@ -18,7 +18,7 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     unsigned char* heightMap_pixels = new unsigned char[Config_Terrain::chunksNbrTiles * Config_Terrain::chunksNbrTiles * 3];
     int heightMapPixelIndex = 0;
 
-    unsigned char* normalMap_pixels = new unsigned char[Config_Terrain::chunksNbrTiles * Config_Terrain::chunksNbrTiles * 4 * 3];
+    unsigned char* normalMap_pixels = new unsigned char[Config_Terrain::chunksNbrTiles * Config_Terrain::chunksNbrTiles * 3];
     int normalMapPixelIndex = 0;
 
     // calculate pos
@@ -79,16 +79,6 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     			// glm::vec2(1.0f, 0.0f)
     		);
 
-            //------------------------ Textures --------------------------------
-            if (!isFlat) {
-                // normal map
-                float gradient = glm::dot(normal, glm::vec3(0.0f, 1.0f, 0.0f));
-                for (int k = 0; k < 3; k++) {
-                    normalMap_pixels[normalMapPixelIndex++] = static_cast<unsigned char>(255 * gradient);
-                };
-            };
-            //------------------------------------------------------------------
-
             tilePosX = i * Config_Terrain::tileSize + posX;
             tilePosZ = (j + 1) * Config_Terrain::tileSize + posZ;
             normal = isFlat ? glm::vec3(0.0f, 1.0f, 0.0f) : calculateVertexNormal(tilePosX, tilePosZ);
@@ -100,16 +90,6 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     			// glm::vec2(0.0f, 1.0f)
     		);
 
-            //------------------------ Textures --------------------------------
-            if (!isFlat) {
-                // normal map
-                float gradient = glm::dot(normal, glm::vec3(0.0f, 1.0f, 0.0f));
-                for (int k = 0; k < 3; k++) {
-                    normalMap_pixels[normalMapPixelIndex++] = static_cast<unsigned char>(255 * gradient);
-                };
-            };
-            //------------------------------------------------------------------
-
             tilePosX = (i + 1) * Config_Terrain::tileSize + posX;
             tilePosZ = (j + 1) * Config_Terrain::tileSize + posZ;
             normal = isFlat ? glm::vec3(0.0f, 1.0f, 0.0f) : calculateVertexNormal(tilePosX, tilePosZ);
@@ -120,16 +100,6 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     			glm::vec2(uvPosX + uvPixelSize, uvPosZ + uvPixelSize)
     			// glm::vec2(1.0f, 1.0f)
     		);
-
-            //------------------------ Textures --------------------------------
-            if (!isFlat) {
-                // normal map
-                float gradient = glm::dot(normal, glm::vec3(0.0f, 1.0f, 0.0f));
-                for (int k = 0; k < 3; k++) {
-                    normalMap_pixels[normalMapPixelIndex++] = static_cast<unsigned char>(255 * gradient);
-                };
-            };
-            //------------------------------------------------------------------
 
             indices[(i * Config_Terrain::chunksNbrTiles + j) * 6 + 0] = (i * Config_Terrain::chunksNbrTiles + j) * 4 + 2;
             indices[(i * Config_Terrain::chunksNbrTiles + j) * 6 + 1] = (i * Config_Terrain::chunksNbrTiles + j) * 4 + 1;
@@ -189,8 +159,8 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
         std::string normalTextureName = "terrainNormal_" + std::to_string(posGridX) + "_" + std::to_string(posGridZ);
         defuseTextureName = normalTextureName;
 
-        stbi_write_jpg(("tmp/" + normalTextureName + ".jpg").c_str(), Config_Terrain::chunksNbrTiles * 2, Config_Terrain::chunksNbrTiles * 2, 3, normalMap_pixels, 100);
-        TextureLoader::createTexture(normalTextureName, "tmp/" + normalTextureName + ".jpg", false);
+        // stbi_write_jpg(("tmp/" + normalTextureName + ".jpg").c_str(), Config_Terrain::chunksNbrTiles, Config_Terrain::chunksNbrTiles, 3, normalMap_pixels, 100);
+        // TextureLoader::createTexture(normalTextureName, "tmp/" + normalTextureName + ".jpg", false);
 
         // create gl texture object
         unsigned int normalMapTexture;
@@ -202,12 +172,12 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
         // // set texture filtering parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Config_Terrain::chunksNbrTiles * 2, Config_Terrain::chunksNbrTiles * 2, 0, GL_RGB, GL_UNSIGNED_BYTE, normalMap_pixels);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Config_Terrain::chunksNbrTiles, Config_Terrain::chunksNbrTiles, 0, GL_RGB, GL_UNSIGNED_BYTE, normalMap_pixels);
 
         glGenerateMipmap(GL_TEXTURE_2D);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
