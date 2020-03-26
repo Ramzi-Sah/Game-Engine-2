@@ -168,8 +168,8 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
         glBindTexture(GL_TEXTURE_2D, normalMapTexture);
 
         // // set the texture wrapping parameters
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
 
         // // set texture filtering parameters
         // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -275,9 +275,9 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     chunk->meshGroups[0]->material.shininess = 8.0f;
 
     chunk->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture(defuseTextureName);
-    // chunk->meshGroups[0]->material.ambient = glm::vec3(2.0f, 2.0f, 2.0f);
-    // chunk->meshGroups[0]->material.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
-    // chunk->meshGroups[0]->material.specular = glm::vec3(0.0f, 0.0f, 0.0f);
+    chunk->meshGroups[0]->material.ambient = glm::vec3(2.0f, 2.0f, 2.0f);
+    chunk->meshGroups[0]->material.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
+    chunk->meshGroups[0]->material.specular = glm::vec3(0.0f, 0.0f, 0.0f);
 };
 
 glm::vec3 TerrainChunk::calculateVertexNormal(int x, int z) {
