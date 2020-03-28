@@ -14,6 +14,8 @@ void AssetLoader::createShaderPrograms() {
     // default shader
     ShaderLoader::createShaderProgram("Default", "data/shaders/default");
     ShaderLoader::createShaderProgram("DefaultPotato", "data/shaders/defaultPotato"); // calculates light in Vertex Shader
+    ShaderLoader::createShaderProgram("ShadowDepth", "data/shaders/shadowDepth");
+    ShaderLoader::createShaderProgram("Terrain", "data/shaders/terrain");
 
     // ui shaders
     ShaderLoader::createShaderProgram("Line", "data/shaders/line");
@@ -23,7 +25,6 @@ void AssetLoader::createShaderPrograms() {
 
     // debug shaders
     ShaderLoader::createShaderProgram("Depth", "data/shaders/depth");
-    ShaderLoader::createShaderProgram("ShadowDepth", "data/shaders/shadowDepth");
     ShaderLoader::createShaderProgram("UV", "data/shaders/uv");
     ShaderLoader::createShaderProgram("Normal", "data/shaders/normal");
 };
@@ -51,6 +52,10 @@ void AssetLoader::createModels() {
 
 void AssetLoader::createTextures() {
     TextureLoader::createTexture("white", "data/textures/white.jpg", false);
+
+    // terrain
+    TextureLoader::createTexture("grass", "data/textures/terrain/grass.jpg", false);
+    TextureLoader::createTexture("rock", "data/textures/terrain/rock.jpg", false);
 
     // container
     TextureLoader::createTexture("containerDefuse", "data/textures/container/diffuse.png", true);

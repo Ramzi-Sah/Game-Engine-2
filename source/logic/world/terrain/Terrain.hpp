@@ -6,12 +6,14 @@
 
 class Terrain {
 private:
-    // island
-    static unsigned int islandGridSize;
-    static TerrainChunk* islandTerrainChunks[300][300];
+    static unsigned int chunksViewDistance;
+    // static TerrainChunk* terrainChunks[0][0];
+    static std::vector<std::vector<TerrainChunk*>> terrainChunks;
 
-    // for update & render
-    static TerrainChunk* terrainChunks[Config_Terrain::nbrChunks][Config_Terrain::nbrChunks];
+    static unsigned int islandGridSize;
+    // static TerrainChunk* islandTerrainChunks[300][300];
+    static std::vector<std::vector<TerrainChunk*>> islandTerrainChunks;
+
     static int offset;
     static int terrainPosX, terrainPosZ;
 public:

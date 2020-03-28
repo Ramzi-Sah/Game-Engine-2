@@ -13,6 +13,7 @@ set(CMAKE_CXX_STANDARD 11)
 
 # set build type
 # set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Debug)
 
 # project name
 project (SAHEngine)

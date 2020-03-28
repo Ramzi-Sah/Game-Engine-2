@@ -21,6 +21,9 @@ Entity::~Entity() {
 
 //------------------------------------------------------------------------------
 void Entity::update() {
+    if (!enabled)
+        return;
+
     // get physics
     pysicsEntity->rigidBody->getMotionState()->getWorldTransform(transform);
     btVector3 pos = transform.getOrigin();
@@ -35,6 +38,20 @@ void Entity::update() {
     pysicsEntity->model->setPos(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
     pysicsEntity->model->setRot(glm::quat(rot.getW(), rot.getX(), rot.getY(), rot.getZ()));
     pysicsEntity->model->updateTransform();
+};
+
+bool Entity::getIsEnabled() {
+    return enabled;
+};
+
+// FIXME: handle physics
+void Entity::enable() {
+    enabled = true;
+
+};
+void Entity::disable() {
+    enabled = false;
+
 };
 
 //------------------------------------------------------------------------------

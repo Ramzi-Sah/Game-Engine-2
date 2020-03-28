@@ -216,38 +216,38 @@ void Camera::key_callback(int key, int action) {
 
     // move camera
     if (action == 1) {
-        if (key == Config_Keymap::FORWARD) {
+        if (key == Config::Keymap::FORWARD) {
             input_forward = true;
         };
-        if (key == Config_Keymap::BACKWARD) {
+        if (key == Config::Keymap::BACKWARD) {
             input_backward = true;
         };
-        if (key == Config_Keymap::RIGHT) {
+        if (key == Config::Keymap::RIGHT) {
             input_right = true;
         };
-        if (key == Config_Keymap::LEFT) {
+        if (key == Config::Keymap::LEFT) {
             input_left = true;
         };
 
-        if (key == Config_Keymap::SPEED) {
-            Config_Camera::translationSpeed *= Config_Camera::translationSpeedRapidMult;
+        if (key == Config::Keymap::SPEED) {
+            Config::Camera::translationSpeed *= Config::Camera::translationSpeedRapidMult;
         };
     } else if (action == 0) {
-        if (key == Config_Keymap::FORWARD) {
+        if (key == Config::Keymap::FORWARD) {
             input_forward = false;
         };
-        if (key == Config_Keymap::BACKWARD) {
+        if (key == Config::Keymap::BACKWARD) {
             input_backward = false;
         };
-        if (key == Config_Keymap::RIGHT) {
+        if (key == Config::Keymap::RIGHT) {
             input_right = false;
         };
-        if (key == Config_Keymap::LEFT) {
+        if (key == Config::Keymap::LEFT) {
             input_left = false;
         };
 
-        if (key == Config_Keymap::SPEED) {
-            Config_Camera::translationSpeed /= Config_Camera::translationSpeedRapidMult;
+        if (key == Config::Keymap::SPEED) {
+            Config::Camera::translationSpeed /= Config::Camera::translationSpeedRapidMult;
         };
     };
 };
@@ -261,7 +261,7 @@ void Camera::inputUpdate(float deltaTime) {
     clculateFrustumWorld();
 
     // calcultae mouse translation speed
-    translationSpeed = Config_Camera::translationSpeed * deltaTime;
+    translationSpeed = Config::Camera::translationSpeed * deltaTime;
 
     // move camera
     if (input_forward) {
@@ -283,8 +283,8 @@ void Camera::inputUpdate(float deltaTime) {
 };
 
 
-float Camera::lastX = Config_Window::width / 2;
-float Camera::lastY = Config_Window::height / 2;
+float Camera::lastX = Config::Window::width / 2;
+float Camera::lastY = Config::Window::height / 2;
 bool Camera::resetMouse = true;
 void Camera::mouse_callback(float posX, float posY) {
     // check if mouse can move
@@ -297,8 +297,8 @@ void Camera::mouse_callback(float posX, float posY) {
         resetMouse = false;
     };
 
-    usedCam->yaw += (posX - lastX) * Config_Camera::rotationSensitivity;
-    usedCam->pitch += (lastY - posY) * Config_Camera::rotationSensitivity;
+    usedCam->yaw += (posX - lastX) * Config::Camera::rotationSensitivity;
+    usedCam->pitch += (lastY - posY) * Config::Camera::rotationSensitivity;
 
     lastX = posX;
     lastY = posY;

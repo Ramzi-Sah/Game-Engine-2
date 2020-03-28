@@ -5,7 +5,6 @@
 	Description:
 		program main entry point
 */
-#include <vector>
 
 // for DEBUG
 #include <bits/stdc++.h>
@@ -16,6 +15,8 @@
 	end = clock(); \
 	double time_taken = double(end - start) / double(CLOCKS_PER_SEC) * 1000; \
 	std::cout << "Time taken by func is : " << std::fixed << time_taken << std::setprecision(5) << " ms " << std::endl;
+
+#include <vector>
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STB_IMAGE_WRITE_IMPLEMENTATION
@@ -96,9 +97,9 @@ float lastFrame = 0.0f; // Time of last frame
 float currentFrame = 0.0f; // temp Time of frame
 
 int main() {
-	std::cout << "SAH game V" << Config_Window::version << '\n';
+	std::cout << "SAH game V" << Config::Window::version << '\n';
 	// init window
-	Display display(Config_Window::title, Config_Window::width, Config_Window::height);
+	Display display(Config::Window::title, Config::Window::width, Config::Window::height);
 
 	// init GUI
 	GUI::init(display.window);
@@ -118,7 +119,7 @@ int main() {
 	// };
 
 	// set light
-	Light::setAmbientLight(glm::vec3(0.4f, 0.4f, 0.8f));
+	Light::setAmbientLight(glm::vec3(0.4f, 0.35f, 0.3f));
 	Light::createDirectionalLight(glm::vec3(-4.0f, 6.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	Light::initShadowMap();
 
@@ -127,7 +128,7 @@ int main() {
 
 	//--------------------------------------------------------------------------
 	// init camera
-    Camera::setProjectionMatrix(Config_Window::width, Config_Window::height);
+    Camera::setProjectionMatrix(Config::Window::width, Config::Window::height);
 	Camera freeCam = Camera();
 	freeCam.use();
 
@@ -181,10 +182,10 @@ int main() {
 	Entities::addEntity(new Entity(tank, tankBody));
 
 	// trees
-	// for (int i = 0; i < static_cast<int>(Config_Terrain::islandSize)/4; i++) {
+	// for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize)/4; i++) {
 	// 	Model* tree = new Model(ModelLoader::getModel("tree"));
-	// 	float posX = rand() % int(Config_Terrain::islandSize);
-	// 	float posZ = rand() % int(Config_Terrain::islandSize);
+	// 	float posX = rand() % int(Config::Terrain::islandSize);
+	// 	float posZ = rand() % int(Config::Terrain::islandSize);
 	// 	PhysicsEntity* treeBody = new PhysicsEntity_Box(btVector3(1.0f, 5.0f, 1.0f), 30.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
     //     Entity* treeEnt = new Entity(tree, treeBody);
     //     treeEnt->setStaticFlag(true);
@@ -192,12 +193,12 @@ int main() {
 	// };
 
 	// trees 1
-	for (int i = 0; i < static_cast<int>(Config_Terrain::islandSize)/4; i++) {
+	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize)/4; i++) {
 		Model* tree = new Model(ModelLoader::getModel("tree1"));
 		tree->setScale(glm::vec3(1.5f, 1.5f, 1.5f));
 		tree->updateTransform();
-		float posX = rand() % int(Config_Terrain::islandSize);
-		float posZ = rand() % int(Config_Terrain::islandSize);
+		float posX = rand() % int(Config::Terrain::islandSize);
+		float posZ = rand() % int(Config::Terrain::islandSize);
 		PhysicsEntity* treeBody = new PhysicsEntity_Box(btVector3(1.0f, 5.0f, 1.0f), 0.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
         Entity* treeEnt = new Entity(tree, treeBody);
         treeEnt->setStaticFlag(true);
@@ -247,10 +248,9 @@ int main() {
 		lastFrame = currentFrame;
 
 		//-----------------------------------------------------------------------
-		// light test
-		Light::createDirectionalLight(Geometry::polarToCartezian(1.0f, glfwGetTime() * 30, 45), glm::vec3(1.0f, 1.0f, 1.0f));
-
-		// test::spaceBarPressed();
+		// debeg
+		// Light::createDirectionalLight(Geometry::polarToCartezian(1.0f, glfwGetTime() * 30, 45), glm::vec3(1.0f, 1.0f, 1.0f));
+		// debug::spaceBarPressed();
 
 		//-----------------------------------------------------------------------
 		//---------------- update inputs ------------------
@@ -264,7 +264,7 @@ int main() {
 		Physics::update(deltaTime);
 
 		// update terrain
-		Terrain::update(cameraPos.x, cameraPos.z);
+        Terrain::update(cameraPos.x, cameraPos.z);
 
 		// update entities
 		Entities::update();
@@ -347,7 +347,7 @@ void renderSceanShadow() {
 	glEnable(GL_CULL_FACE);
 	glCullFace(GL_FRONT);
 
-	// render terrain FIXME: use shadow shader first
+	// render terrain
 	Terrain::renderShadow();
 
 	// render entities
@@ -456,9 +456,9 @@ void createCubes(int nbr) {
 		Model* model = new Model(ModelLoader::getModel("cube"));
 
 		glm::vec3 pos = glm::vec3(
-			int(Config_Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)),
-			int(Config_Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)),
-			int(Config_Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX))
+			int(Config::Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)),
+			int(Config::Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)),
+			int(Config::Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX))
 		);
 		/*
 		cubes[i]->setRot(

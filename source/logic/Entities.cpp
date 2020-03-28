@@ -53,6 +53,9 @@ void Entities::update() {
 void Entities::render() {
     // render all entities
     for (int i = 0; i < entities.size(); i++) {
+        if (!entities[i]->getIsEnabled())
+            continue;
+
         // render model
         entities[i]->model->render();
 
@@ -64,6 +67,9 @@ void Entities::render() {
 void Entities::renderShadows() {
     // render all entities
     for (int i = 0; i < entities.size(); i++) {
+        if (!entities[i]->getIsEnabled())
+            continue;
+
         entities[i]->model->renderShadow();
     };
 };

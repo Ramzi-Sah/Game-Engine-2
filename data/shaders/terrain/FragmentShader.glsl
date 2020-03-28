@@ -23,7 +23,15 @@ struct Material {
 };
 
 uniform Material u_material;
+
 uniform sampler2D u_shadowMap;
+
+// textures
+struct Textures {
+    sampler2D grass;
+    sampler2D rock;
+};
+uniform Textures u_textures;
 
 // light
 uniform vec3 ambientLight;
@@ -63,7 +71,13 @@ float shadowCalculation(vec4 fragPosLightSpace) {
     return shadow;
 };
 
+
+vec3 ambient_tmp, diffuse_tmp, specular_tmp;
 void main() {
+    // shadow calculations
+    float shadow = shadowCalculation(v_posLightSpace);
+
+    //--------------------------------------------------------------------------
     // calculate ambient light
     vec3 ambient = ambientLight * u_material.ambient;
 
@@ -78,20 +92,28 @@ void main() {
     vec3 specular = spec * diffuseLightColor * u_material.specular;
 
     // set textures
-    ambient *= vec3(texture(u_material.diffuseMap, v_uv));
-    diffuse *= vec3(texture(u_material.diffuseMap, v_uv));
-    specular *= vec3(texture(u_material.specularMap, v_uv));
+    float gradient = max(dot(vec3(0.0f, 1.0f, 0.0f), v_normal), 0.0f);
 
-    // shadow calculations
-    float shadow = shadowCalculation(v_posLightSpace);
+    //--------------------------------------------------------------------------
+    // grass texture
+    ambient_tmp = ambient;
+    diffuse_tmp = diffuse;
+    specular_tmp = specular;
+
+    ambient_tmp *= vec3(texture(u_textures.grass, v_uv)) * gradient;
+    diffuse_tmp *= vec3(texture(u_textures.grass, v_uv)) * gradient;
 
     // final color result
-    FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), u_material.opacity);
-/*
+    FragColor = vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
+
     //--------------------------------------------------------------------------
-    // grayScale
-    float average = 0.2126 * FragColor.r + 0.7152 * FragColor.g + 0.0722 * FragColor.b;
-    // float average = (FragColor.r + FragColor.g + FragColor.b) / 3.0;
-    FragColor = vec4(average, average, average, 1.0);
-*/
+    // rock texture
+    ambient_tmp = ambient;
+    diffuse_tmp = diffuse;
+    specular_tmp = specular;
+
+    ambient_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - gradient);
+    diffuse_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - gradient);
+
+    FragColor += vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
 };

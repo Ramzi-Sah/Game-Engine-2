@@ -7,9 +7,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "../config.hpp"
 #include "AssetLoader.hpp"
 #include "../common/Geometry.hpp"
-#include "../config.hpp"
 
 struct Ray {
     glm::vec3 position;

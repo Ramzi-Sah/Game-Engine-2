@@ -1,2 +1,2 @@
 # Game-Engine-2
-latest version of my game engine writen in c++
+latest version of my game engine written in c++
