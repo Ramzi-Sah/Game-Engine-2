@@ -10,9 +10,6 @@ class Entity {
 private:
     btTransform transform;
 
-    // status
-    bool enabled = true;
-
     // physics
     bool isStatic = false;
     void setStatic(bool state);
@@ -29,11 +26,7 @@ public:
     PhysicsEntity* pysicsEntity;
 
     void update();
-
-    // status
-    bool getIsEnabled();
-    void enable();
-    void disable();
+    bool enabled = true;
 
     // transform
     void setPos(glm::vec3 _position);

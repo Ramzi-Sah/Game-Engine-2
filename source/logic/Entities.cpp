@@ -44,16 +44,24 @@ bool Entities::checkEntity(Entity* _entity) {
     return false;
 };
 //------------------------------------------------------------------------------
-void Entities::update() {
+void Entities::update(glm::vec3 camPos) {
     // update all entities
     for (int i = 0; i < entities.size(); i++) {
+        // check if in with view distance
+        entities[i]->enabled = Geometry::distance2d(entities[i]->getPos(), camPos) <= Config::Game::viewDistance ? true : false;
+
+        // check if enabled
+        if (!entities[i]->enabled)
+            continue;
+
         entities[i]->update();
     };
 };
 void Entities::render() {
     // render all entities
     for (int i = 0; i < entities.size(); i++) {
-        if (!entities[i]->getIsEnabled())
+        // check if enabled
+        if (!entities[i]->enabled)
             continue;
 
         // render model
@@ -67,7 +75,8 @@ void Entities::render() {
 void Entities::renderShadows() {
     // render all entities
     for (int i = 0; i < entities.size(); i++) {
-        if (!entities[i]->getIsEnabled())
+        // check if enabled
+        if (!entities[i]->enabled)
             continue;
 
         entities[i]->model->renderShadow();

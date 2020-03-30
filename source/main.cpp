@@ -264,10 +264,12 @@ int main() {
 		Physics::update(deltaTime);
 
 		// update terrain
+		// Debug(Terrain::update(cameraPos.x, cameraPos.z))
         Terrain::update(cameraPos.x, cameraPos.z);
 
 		// update entities
-		Entities::update();
+		// Debug(Entities::update(cameraPos))
+		Entities::update(cameraPos);
 
 		//------------------------- render --------------------------------------
 		//-----------------------------------------------------------------------
@@ -344,8 +346,8 @@ void renderSceanShadow() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// face culling
-	glEnable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
+	// glEnable(GL_CULL_FACE);
+	// glCullFace(GL_FRONT);
 
 	// render terrain
 	Terrain::renderShadow();
@@ -353,7 +355,7 @@ void renderSceanShadow() {
 	// render entities
 	Entities::renderShadows();
 
-	glCullFace(GL_BACK);
+	// glCullFace(GL_BACK);
 };
 
 //-----------------------------------------------------------------------------

@@ -4,12 +4,12 @@
 // projection
 glm::mat4 Camera::projection = glm::mat4(1.0f);
 float Camera::nearPlane = 0.1f;
-float Camera::farPlane = 1000.0f;
+float Camera::farPlane = Config::Game::viewDistance - Config::Terrain::chunksNbrTiles * sqrt(2); // pytaghore's law
 float Camera::fov = 45.0f;
 
-float Camera::cascade1 = 0.1f;
-float Camera::cascade2 = 50.0f;
-float Camera::cascade3 = 75.0f;
+float Camera::cascade1 = 50.0f;
+float Camera::cascade2 = 200.0f;
+float Camera::cascade3 = Config::Game::viewDistance;
 
 void Camera::setProjectionMatrixUniform() {
     // set all shader program's projection uniform
@@ -46,28 +46,28 @@ void Camera::reClculateFrustum() {
     float fovX = tanf(glm::radians(fov * resolution / 2.0f));
     float fovY = tanf(glm::radians(fov / 2.0f));
 
-    float xn = cascade1 * fovX;
-    float yn = cascade1 * fovY;
-    float xf = cascade2 * fovX;
-    float yf = cascade2 * fovY;
+    float xn = nearPlane * fovX;
+    float yn = nearPlane * fovY;
+    float xf = cascade1 * fovX;
+    float yf = cascade1 * fovY;
 
     //-------------------set near frustum------------------------
-    frustum[0] = glm::vec4( xn,  yn, cascade1, 1.0f);   // nearRightUp
-    frustum[1] = glm::vec4(-xn,  yn, cascade1, 1.0f);   // nearLeftUp
-    frustum[2] = glm::vec4( xn, -yn, cascade1, 1.0f);   // nearRightDown
-    frustum[3] = glm::vec4(-xn, -yn, cascade1, 1.0f);   // nearLeftDown
+    frustum[0] = glm::vec4( xn,  yn, nearPlane, 1.0f);   // nearRightUp
+    frustum[1] = glm::vec4(-xn,  yn, nearPlane, 1.0f);   // nearLeftUp
+    frustum[2] = glm::vec4( xn, -yn, nearPlane, 1.0f);   // nearRightDown
+    frustum[3] = glm::vec4(-xn, -yn, nearPlane, 1.0f);   // nearLeftDown
 
     //--------------------set far frustum-----------------------
-    frustum[4] = glm::vec4( xf,  yf, cascade2, 1.0f);    // farRightUp
-    frustum[5] = glm::vec4(-xf,  yf, cascade2, 1.0f);    // farLeftUp
-    frustum[6] = glm::vec4( xf, -yf, cascade2, 1.0f);    // farRightDown
-    frustum[7] = glm::vec4(-xf, -yf, cascade2, 1.0f);    // farLeftDown
+    frustum[4] = glm::vec4( xf,  yf, cascade1, 1.0f);    // farRightUp
+    frustum[5] = glm::vec4(-xf,  yf, cascade1, 1.0f);    // farLeftUp
+    frustum[6] = glm::vec4( xf, -yf, cascade1, 1.0f);    // farRightDown
+    frustum[7] = glm::vec4(-xf, -yf, cascade1, 1.0f);    // farLeftDown
 };
 glm::vec4 Camera::frustumW[8];
 void Camera::clculateFrustumWorld() {
     // calculate view mat inverse
     // glm::mat4 viewMatInv = glm::inverse(usedCam->view);
-    glm::mat4 viewMatInv = glm::inverse(glm::lookAt(usedCam->position, usedCam->position - usedCam->front, usedCam->up));
+    glm::mat4 viewMatInv = glm::inverse(glm::lookAt(usedCam->position, usedCam->position - usedCam->front, usedCam->up)); // FIXME: view matrix should not be recalculated
 
     // calculate frustum in world space
     for (int i = 0; i < 8; i++) {

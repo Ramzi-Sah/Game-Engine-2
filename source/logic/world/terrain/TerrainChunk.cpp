@@ -8,6 +8,7 @@ TerrainChunk::TerrainChunk(TerrainChunk* _terrainChunk) {
     // copy chunk model
     chunk = new Model(_terrainChunk->chunk);
 };
+
 TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     // instintiate new model
     chunk = new Model();
@@ -222,11 +223,11 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     // chunk->castShadow = false;
 
     // chunk model set material
-    glm::vec3 color = glm::vec3(
-        static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-        static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
-        static_cast<float>(rand()) / static_cast<float>(RAND_MAX)
-    );
+    // glm::vec3 color = glm::vec3(
+    //     static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+    //     static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+    //     static_cast<float>(rand()) / static_cast<float>(RAND_MAX)
+    // );
     // chunk->meshGroups[0]->material.ambient = color;
     // chunk->meshGroups[0]->material.diffuse = color;
     // chunk->meshGroups[0]->material.specular = glm::vec3(color.r/4, color.g/4, color.b/4);
@@ -237,11 +238,10 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     // chunk->meshGroups[0]->material.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
     // chunk->meshGroups[0]->material.specular = glm::vec3(0.0f, 0.0f, 0.0f);
 
-
     chunk->meshGroups[0]->material.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     chunk->meshGroups[0]->material.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
     chunk->meshGroups[0]->material.specular = glm::vec3(0.1f, 0.1f, 0.1f);
-    chunk->meshGroups[0]->material.shininess = 50.0f;
+    chunk->meshGroups[0]->material.shininess = 8.0f;
 };
 
 glm::vec3 TerrainChunk::calculateVertexNormal(int x, int z) {
@@ -261,6 +261,15 @@ glm::vec3 TerrainChunk::calculateVertexNormal(int x, int z) {
         1.0f,
         H_Down - H_Up
     ));
+};
+
+void TerrainChunk::setPosGrid(int posGridX, int posGridZ) {
+    chunk->setPos(glm::vec3(
+        posGridX * Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize,
+        0.0f,
+        posGridZ * Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize
+    ));
+    chunk->updateTransform();
 };
 
 void TerrainChunk::render() {

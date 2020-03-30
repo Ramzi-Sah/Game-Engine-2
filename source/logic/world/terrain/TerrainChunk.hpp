@@ -19,6 +19,7 @@ public:
 
     TerrainChunk(int posGridX, int posGridZ, bool isFlat);
     TerrainChunk(TerrainChunk* _terrainChunk);
+    void setPosGrid(int posGridX, int posGridZ);
 
     void render();
     void renderShadow();

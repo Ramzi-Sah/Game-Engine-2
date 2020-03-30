@@ -33,6 +33,8 @@ uniform vec3 u_viewPos;
 
 // shadow calculations
 float shadowCalculation(vec4 fragPosLightSpace) {
+    // return 0.0;
+
     // perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
 
@@ -46,9 +48,9 @@ float shadowCalculation(vec4 fragPosLightSpace) {
     float closestDepth = texture(u_shadowMap, projCoords.xy).r;
 
     // check whether current frag pos is in shadow
-    // float shadow = projCoords.z > closestDepth  ? 1.0 : 0.0;
+    float shadow = projCoords.z > closestDepth  ? 1.0 : 0.0;
 
-// /*
+/*
     float shadow = 0.0f;
     // blur
     vec2 texelSize = 1.0 / textureSize(u_shadowMap, 0);
@@ -59,11 +61,14 @@ float shadowCalculation(vec4 fragPosLightSpace) {
         };
     };
     shadow /= 9;
-// */
+*/
     return shadow;
 };
 
 void main() {
+    // shadow calculations
+    float shadow = shadowCalculation(v_posLightSpace);
+
     // calculate ambient light
     vec3 ambient = ambientLight * u_material.ambient;
 
@@ -81,9 +86,6 @@ void main() {
     ambient *= vec3(texture(u_material.diffuseMap, v_uv));
     diffuse *= vec3(texture(u_material.diffuseMap, v_uv));
     specular *= vec3(texture(u_material.specularMap, v_uv));
-
-    // shadow calculations
-    float shadow = shadowCalculation(v_posLightSpace);
 
     // final color result
     FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), u_material.opacity);

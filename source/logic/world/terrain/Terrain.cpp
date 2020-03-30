@@ -3,8 +3,9 @@
 unsigned int Terrain::chunksViewDistance = 2 * (Config::Game::viewDistance / Config::Terrain::chunksNbrTiles);
 std::vector<std::vector<TerrainChunk*>> Terrain::terrainChunks;
 
-unsigned int Terrain::islandGridSize = static_cast<int>(Config::Terrain::islandSize / (Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize));
+unsigned int Terrain::islandGridSize = static_cast<int>(Config::Terrain::islandSize / (Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize)) + 1;
 std::vector<std::vector<TerrainChunk*>> Terrain::islandTerrainChunks;
+TerrainChunk* Terrain::flatChunk;
 
 int Terrain::offset = chunksViewDistance / 2;
 int Terrain::terrainPosX, Terrain::terrainPosZ;
@@ -32,6 +33,9 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
         };
     };
 
+    // generate flat terrain
+    flatChunk = new TerrainChunk(0, 0, true);
+
     // generate chunks
     terrainPosX = posToGrid(posX);
     terrainPosZ = posToGrid(posZ);
@@ -43,11 +47,8 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
             if (i + terrainPosX - offset >= 0 && i + terrainPosX - offset < islandGridSize && j + terrainPosZ - offset >= 0 && j + terrainPosZ - offset < islandGridSize) {
                 terrainChunks[i][j] = new TerrainChunk(islandTerrainChunks[i + terrainPosX - offset][j - 1 + terrainPosX - offset]);
             } else {
-                terrainChunks[i][j] = new TerrainChunk(
-                    i + terrainPosX - offset,
-                    j + terrainPosZ - offset,
-                    true
-                );
+                terrainChunks[i][j] = new TerrainChunk(flatChunk);
+                terrainChunks[i][j]->setPosGrid(i + terrainPosX - offset, j + terrainPosZ - offset);
             };
         };
     };
@@ -153,28 +154,22 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
 };
 void Terrain::dispose() {
     // dispose terrain chunks
-    for (int i = 0; i < chunksViewDistance; i++) {
-        for (int j = 0; j < chunksViewDistance; j++) {
-            delete terrainChunks[i][j];
-        };
-    };
-
     // dispose island chunks
     for (int i = 0; i < islandGridSize; i++) {
         for (int j = 0; j < islandGridSize; j++) {
+            delete terrainChunks[i][j];
             delete islandTerrainChunks[i][j];
         };
     };
+
+    // delete flat terrain
+    delete flatChunk;
 };
 
 void Terrain::render() {
-    // for (int i = 0; i < islandGridSize; i++) {
-    //     for (int j = 0; j < islandGridSize; j++) {
-    //         islandTerrainChunks[i][j]->render();
-    //     };
-    // };
     for (int i = 0; i < chunksViewDistance; i++) {
         for (int j = 0; j < chunksViewDistance; j++) {
+            // islandTerrainChunks[i][j]->render();
             terrainChunks[i][j]->render();
         };
     };
@@ -209,8 +204,10 @@ void Terrain::update(float posX, float posZ) {
                     if (x+1 == chunksViewDistance) {
                         if (gridPosX + chunksViewDistance - 1 - offset >= 0 && gridPosX + chunksViewDistance - 1 - offset < islandGridSize && z + gridPosZ - offset >= 0 && z + gridPosZ - offset < islandGridSize)
                             terrainChunks[x][z] = new TerrainChunk(islandTerrainChunks[gridPosX + chunksViewDistance - 1 - offset][z + gridPosZ - offset]);
-                        else
-                            terrainChunks[x][z] = new TerrainChunk(gridPosX + chunksViewDistance - 1 - offset, z + gridPosZ - offset, true);
+                        else {
+                            terrainChunks[x][z] = new TerrainChunk(flatChunk);
+                            terrainChunks[x][z]->setPosGrid(gridPosX + chunksViewDistance - 1 - offset, z + gridPosZ - offset);
+                        };
                     } else {
                         terrainChunks[x][z] = terrainChunks[x+1][z];
                     };
@@ -225,8 +222,10 @@ void Terrain::update(float posX, float posZ) {
                     if (x == 0) {
                         if (gridPosX - offset >= 0 && gridPosX - offset < islandGridSize && gridPosZ + z - offset >= 0 && z + gridPosZ - offset < islandGridSize)
                             terrainChunks[x][z] = new TerrainChunk(islandTerrainChunks[gridPosX - offset][gridPosZ + z - offset]);
-                        else
-                            terrainChunks[0][z] = new TerrainChunk(gridPosX - offset, gridPosZ + z - offset, true);
+                        else {
+                            terrainChunks[0][z] = new TerrainChunk(flatChunk);
+                            terrainChunks[0][z]->setPosGrid(gridPosX - offset, gridPosZ + z - offset);
+                        };
                     } else {
                         terrainChunks[x][z] = terrainChunks[x-1][z];
                     };
@@ -249,8 +248,10 @@ void Terrain::update(float posX, float posZ) {
                     if (z+1 == chunksViewDistance) {
                         if (gridPosX + x - offset >= 0 && gridPosX + x - offset < islandGridSize && gridPosZ + chunksViewDistance - 1 - offset >= 0 && gridPosZ + chunksViewDistance - 1 - offset < islandGridSize)
                             terrainChunks[x][z] = new TerrainChunk(islandTerrainChunks[gridPosX + x - offset][gridPosZ + chunksViewDistance - 1 - offset]);
-                        else
-                            terrainChunks[x][z] = new TerrainChunk(gridPosX + x - offset, gridPosZ + chunksViewDistance - 1 - offset, true);
+                        else {
+                            terrainChunks[x][z] = new TerrainChunk(flatChunk);
+                            terrainChunks[x][z]->setPosGrid(gridPosX + x - offset, gridPosZ + chunksViewDistance - 1 - offset);
+                        };
                     } else {
                         terrainChunks[x][z] = terrainChunks[x][z+1];
                     };
@@ -265,8 +266,10 @@ void Terrain::update(float posX, float posZ) {
                     if (z == 0) {
                         if (gridPosX + x - offset >= 0 && gridPosX + x - offset < islandGridSize && gridPosZ - offset >= 0 && gridPosZ - offset < islandGridSize)
                             terrainChunks[x][z] =  new TerrainChunk(islandTerrainChunks[gridPosX + x - offset][gridPosZ - offset]);
-                        else
-                            terrainChunks[x][0] = new TerrainChunk(gridPosX + x - offset, gridPosZ - offset, true);
+                        else {
+                            terrainChunks[x][0] = new TerrainChunk(flatChunk);
+                            terrainChunks[x][0]->setPosGrid(gridPosX + x - offset, gridPosZ - offset);
+                        };
                     } else {
                         terrainChunks[x][z] = terrainChunks[x][z-1];
                     };

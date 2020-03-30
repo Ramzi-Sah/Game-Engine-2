@@ -4,16 +4,16 @@
 #include <iostream>
 
 namespace Config {
-
     namespace Window {
         static std::string title = "Engine";
         static unsigned int height = 720;
         static unsigned int width = height * 16 / 9;
-        static float version = 0.04f;
+        static float version = 0.05f;
     };
 
     namespace Game {
-        static float viewDistance = 200.0f;
+        static float viewDistance = 400.0f;
+        // TODO: add shadow maps resolution
     };
 
     namespace Keymap {
@@ -37,15 +37,14 @@ namespace Config {
         static const float tileSize = 1.0f;
 
         // island
-        static const float islandSize = 1000.0f;
+        static const float islandSize = 400.0f;
 
         // Bioms
         static const unsigned int seed = 0;
-        static const float frequancy = 0.001f;
-        static const float amplitude = 100.0f;
-        static const unsigned int elevation = 1;
+        static const float frequancy = 0.005f;
+        static const float amplitude = 8.0f;
+        static const unsigned int elevation = 3;
     };
-
 };
 
 #endif

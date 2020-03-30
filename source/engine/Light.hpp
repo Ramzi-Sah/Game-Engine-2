@@ -10,8 +10,9 @@
 class Light {
 private:
     static glm::vec3 lightDir;
+    static glm::mat4 lightView;
 
-    // shadows  TODO: despose  fbo & texture
+    // shadows TODO: despose  fbo & texture
     static unsigned int depthFrame;
     static unsigned int depthMap;
     static glm::vec4 frustumL[8];

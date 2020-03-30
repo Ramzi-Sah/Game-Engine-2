@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "../common/Geometry.hpp"
 #include "../engine/Entity.hpp"
 #include "../engine/GUI.hpp"
 
@@ -18,7 +19,7 @@ public:
     static Entity* getEntity(Model* _model);
     static bool checkEntity(Entity* _entity);
 
-    static void update();
+    static void update(glm::vec3 camPos);
     static void render();
     static void renderShadows();
 

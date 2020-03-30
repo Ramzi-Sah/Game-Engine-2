@@ -16,8 +16,18 @@ void Light::setAmbientLight(glm::vec3 _ambientLight) {
 
 //------------------------------ Defuse Light ----------------------------------
 glm::vec3 Light::lightDir;
+glm::mat4 Light::lightView;
 void Light::createDirectionalLight(glm::vec3 _lightDir, glm::vec3 _lightColor) {
+    // set light dir
     lightDir = glm::normalize(_lightDir);
+
+    // calculate light view
+    lightView = glm::lookAt(
+        // lightDir,
+        glm::vec3(0.0f, 0.0f, 0.0f),
+        lightDir,
+        glm::vec3(0.0f, 1.0f, 0.0f)
+    );
 
     // set all shader program's defuseLight uniform
     for (auto it = ShaderLoader::shaderPrograms.cbegin(); it != ShaderLoader::shaderPrograms.cend(); ++it) {
@@ -59,7 +69,7 @@ void Light::initShadowMap() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
 
     // texture borders to white
-    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f};
+    float borderColor[] = {1.0f, 1.0f, 1.0f, 1.0f};
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
     // attach depth map to buffer
@@ -72,13 +82,6 @@ void Light::initShadowMap() {
 glm::vec4 Light::frustumL[8];
 void Light::recalculateLightSpaceMat(glm::vec4* frustumW) {
     // cascade shadows theory http://ogldev.atspace.co.uk/www/tutorial49/tutorial49.html
-    // calculate light view
-    glm::mat4 lightView = glm::lookAt(
-        lightDir,
-        glm::vec3(0.0f, 0.0f, 0.0f),
-        glm::vec3(0.0f, 1.0f, 0.0f)
-    );
-
     float minX =  FLT_MAX;
     float maxX = -FLT_MAX;
     float minY =  FLT_MAX;
@@ -99,10 +102,14 @@ void Light::recalculateLightSpaceMat(glm::vec4* frustumW) {
         minZ = minZ > frustumL[i].z ? frustumL[i].z : minZ;
         maxZ = maxZ < frustumL[i].z ? frustumL[i].z : maxZ;
     };
+
     // calculate shadow box projection
     // glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -100.0f, 100.0f);
-    glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minY, maxY);
-    // glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minZ, maxZ);
+    // glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minY, maxY);
+    glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -minZ, -maxZ);
+    // glm::mat4 lightProjection = glm::ortho(minX, maxX, -minZ, -maxZ, minY, maxY);
+    // glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -minZ, -maxZ);
+    // glm::mat4 lightProjection = glm::ortho(minX, maxX, -minZ, -maxZ, -10.0f, 10.0f);
 
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
@@ -116,9 +123,9 @@ void Light::recalculateLightSpaceMat(glm::vec4* frustumW) {
             glm::value_ptr(lightSpaceMatrix)
         );
     };
+
 /*
-    //--------------------------------------------------------------------------
-    //-------------------set near frustum------------------------
+    //----------------------------set near frustum------------------------------
     frustumL[0] = glm::vec4(maxX, maxY, minZ, 1.0f);   // nearRightUp
     frustumL[1] = glm::vec4(minX, maxY, minZ, 1.0f);   // nearLeftUp
     frustumL[2] = glm::vec4(maxX, minY, minZ, 1.0f);   // nearRightDown
