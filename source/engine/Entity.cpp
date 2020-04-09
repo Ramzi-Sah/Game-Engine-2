@@ -22,7 +22,8 @@ Entity::~Entity() {
 //------------------------------------------------------------------------------
 void Entity::update() {
     // get physics
-    pysicsEntity->rigidBody->getMotionState()->getWorldTransform(transform);
+    // pysicsEntity->rigidBody->getMotionState()->getWorldTransform(transform);
+    transform = pysicsEntity->rigidBody->getWorldTransform();
     btVector3 pos = transform.getOrigin();
     btQuaternion rot = transform.getRotation();
 
@@ -57,7 +58,8 @@ void Entity::setPos(glm::vec3 _position) {
     setKinematic(kinematicTemp);
 };
 glm::vec3 Entity::getPos() {
-    btVector3 pos = transform.getOrigin();
+    btVector3 pos = pysicsEntity->rigidBody->getWorldTransform().getOrigin();
+    // btVector3 pos = transform.getOrigin();
     return glm::vec3(pos.getX(), pos.getY(), pos.getZ());
 };
 void Entity::setRot(glm::quat _rotation) {

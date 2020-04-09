@@ -40,6 +40,7 @@ void AssetLoader::createModels() {
 
     // models
     ModelLoader::createModel("char", "char");
+    ModelLoader::createModel("pawn", "pawn");
     ModelLoader::createModel("t72", "t72");
     ModelLoader::createModel("tree", "tree");
     ModelLoader::createModel("tree1", "tree1");

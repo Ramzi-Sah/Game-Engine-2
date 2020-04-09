@@ -47,7 +47,6 @@ public:
     float mass;
 
     bool renderCollider = false;
-
 };
 
 #endif

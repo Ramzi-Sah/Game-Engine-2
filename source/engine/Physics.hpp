@@ -68,5 +68,24 @@ public:
         model->meshGroups[0]->material.opacity = 0.5f;
     };
 };
+class PhysicsEntity_Sphere : public PhysicsEntity {
+private:
+
+public:
+    PhysicsEntity_Sphere(float radius, float mass, btVector3 pos) {
+        rigidBody = Physics::addSphere(radius, mass, pos);
+
+        // handle collision box model
+        model = new Model(ModelLoader::getModel("sphere"));
+        model->setScale(glm::vec3(radius, radius, radius));
+        model->updateTransform();
+        // model->setPolygoneMode(GL_LINE);
+
+        model->meshGroups[0]->material.ambient = glm::vec3(0.0f, 0.75f, 1.0f);
+        model->meshGroups[0]->material.diffuse = glm::vec3(0.0f, 0.75f, 1.0f);
+        model->meshGroups[0]->material.specular = glm::vec3(0.0f, 0.0f, 0.0f);
+        model->meshGroups[0]->material.opacity = 0.5f;
+    };
+};
 
 #endif

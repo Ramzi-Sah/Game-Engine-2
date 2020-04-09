@@ -78,6 +78,8 @@ btRigidBody* Physics::addSphere(float radius, float mass, btVector3 pos) {
 
     // set some attribs
     body->setActivationState(DISABLE_DEACTIVATION);
+    // body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+
     body->setUserPointer(body);
 
 	return body;
@@ -105,7 +107,7 @@ btRigidBody* Physics::addBox(btVector3 size, float mass, btVector3 pos) {
 
     // set some attribs
     body->setActivationState(DISABLE_DEACTIVATION);
-    body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+    // body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
 
     body->setUserPointer(body);
 

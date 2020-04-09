@@ -14,6 +14,7 @@
 namespace debug {
 	void spaceBarPressed();
 	void f2Pressed();
+	void f4Pressed();
 	void renderCameraFrustum();
 };
 

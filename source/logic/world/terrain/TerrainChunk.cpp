@@ -13,11 +13,12 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     // instintiate new model
     chunk = new Model();
     chunk->setMainShaderProgram(ShaderLoader::getShader("Terrain"));
+    // chunk->setMainShaderProgram(ShaderLoader::getShader("Default"));
     // chunk->setPolygoneMode(GL_LINE);
 
     // textures
-    unsigned char* heightMap_pixels = new unsigned char[Config::Terrain::chunksNbrTiles * Config::Terrain::chunksNbrTiles * 3];
-    int heightMapPixelIndex = 0;
+    // unsigned char* heightMap_pixels = new unsigned char[Config::Terrain::chunksNbrTiles * Config::Terrain::chunksNbrTiles * 3];
+    // int heightMapPixelIndex = 0;
 
     // calculate pos
     float posX = posGridX * Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize;
@@ -25,27 +26,25 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
 
     static float tilePosX, tilePosZ;
     static float uvPosX, uvPosZ;
-    static float uvPixelSize = 1.0f / float(Config::Terrain::chunksNbrTiles);
     static glm::vec3 normal;
 
     // chunk model generate & add vertecies
-	unsigned int indices[(int)(pow(Config::Terrain::chunksNbrTiles, 2) * 6)];
-    for (int j = 0; j < Config::Terrain::chunksNbrTiles; j++) {
-	    for (int i = 0; i < Config::Terrain::chunksNbrTiles; i++) {
+    for (int j = 0; j <= Config::Terrain::chunksNbrTiles; j++) {
+        for (int i = 0; i <= Config::Terrain::chunksNbrTiles; i++) {
             tilePosX = i * Config::Terrain::tileSize + posX;
             tilePosZ = j * Config::Terrain::tileSize + posZ;
             normal = isFlat ? glm::vec3(0.0f, 1.0f, 0.0f) : calculateVertexNormal(tilePosX, tilePosZ);
+            if (!isFlat) heights.push_back(Bioms::getHight(tilePosX, tilePosZ)); // for collider
 
-            uvPosX = float(i) / float(Config::Terrain::chunksNbrTiles);
-            uvPosZ = float(j) / float(Config::Terrain::chunksNbrTiles);
+            uvPosX = float(i) / float(Config::Terrain::chunksNbrTiles)*4;
+            uvPosZ = float(j) / float(Config::Terrain::chunksNbrTiles)*4;
 
     		chunk->addVertex(
     			glm::vec3(tilePosX, isFlat ? 0.0f : Bioms::getHight(tilePosX, tilePosZ), tilePosZ),
     			normal,
     			glm::vec2(uvPosX, uvPosZ)
-    			// glm::vec2(0.0f, 0.0f)
     		);
-
+/*
             //------------------------ Textures --------------------------------
             if (!isFlat) {
                 // hights for collider
@@ -59,51 +58,31 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
                 };
             };
             //------------------------------------------------------------------
-
-            tilePosX = (i + 1) * Config::Terrain::tileSize + posX;
-            tilePosZ = j * Config::Terrain::tileSize + posZ;
-            normal = isFlat ? glm::vec3(0.0f, 1.0f, 0.0f) : calculateVertexNormal(tilePosX, tilePosZ);
-
-    		chunk->addVertex(
-    			glm::vec3(tilePosX, isFlat ? 0.0f : Bioms::getHight(tilePosX, tilePosZ), tilePosZ),
-    			normal,
-    			glm::vec2(uvPosX + uvPixelSize, uvPosZ)
-    			// glm::vec2(1.0f, 0.0f)
-    		);
-
-            tilePosX = i * Config::Terrain::tileSize + posX;
-            tilePosZ = (j + 1) * Config::Terrain::tileSize + posZ;
-            normal = isFlat ? glm::vec3(0.0f, 1.0f, 0.0f) : calculateVertexNormal(tilePosX, tilePosZ);
-
-    		chunk->addVertex(
-    			glm::vec3(tilePosX, isFlat ? 0.0f : Bioms::getHight(tilePosX, tilePosZ), tilePosZ),
-    			normal,
-    			glm::vec2(uvPosX, uvPosZ + uvPixelSize)
-    			// glm::vec2(0.0f, 1.0f)
-    		);
-
-            tilePosX = (i + 1) * Config::Terrain::tileSize + posX;
-            tilePosZ = (j + 1) * Config::Terrain::tileSize + posZ;
-            normal = isFlat ? glm::vec3(0.0f, 1.0f, 0.0f) : calculateVertexNormal(tilePosX, tilePosZ);
-
-    		chunk->addVertex(
-    			glm::vec3(tilePosX, isFlat ? 0.0f : Bioms::getHight(tilePosX, tilePosZ), tilePosZ),
-    			normal,
-    			glm::vec2(uvPosX + uvPixelSize, uvPosZ + uvPixelSize)
-    			// glm::vec2(1.0f, 1.0f)
-    		);
-
-            indices[(i * Config::Terrain::chunksNbrTiles + j) * 6 + 0] = (i * Config::Terrain::chunksNbrTiles + j) * 4 + 2;
-            indices[(i * Config::Terrain::chunksNbrTiles + j) * 6 + 1] = (i * Config::Terrain::chunksNbrTiles + j) * 4 + 1;
-            indices[(i * Config::Terrain::chunksNbrTiles + j) * 6 + 2] = (i * Config::Terrain::chunksNbrTiles + j) * 4 + 0;
-
-            indices[(i * Config::Terrain::chunksNbrTiles + j) * 6 + 3] = (i * Config::Terrain::chunksNbrTiles + j) * 4 + 2;
-            indices[(i * Config::Terrain::chunksNbrTiles + j) * 6 + 4] = (i * Config::Terrain::chunksNbrTiles + j) * 4 + 3;
-            indices[(i * Config::Terrain::chunksNbrTiles + j) * 6 + 5] = (i * Config::Terrain::chunksNbrTiles + j) * 4 + 1;
+*/
         };
 	};
+
+    // calculate faces indecies
+    unsigned int numberIndecies = pow(Config::Terrain::chunksNbrTiles, 2) * 2 * 3; // nbr of tiles each tile have 2 triangles each triangle have 3 vertecies
+    unsigned int indecies[numberIndecies];
+    unsigned int vertexIndex, index = 0;
+
+    for (unsigned int j = 0; j < Config::Terrain::chunksNbrTiles; j++) {
+        for (unsigned int i = 0; i < Config::Terrain::chunksNbrTiles; i++) {
+            vertexIndex = (j * (Config::Terrain::chunksNbrTiles+1)) + i;
+
+            indecies[index++] = vertexIndex;
+            indecies[index++] = vertexIndex + Config::Terrain::chunksNbrTiles+1 + 1;
+            indecies[index++] = vertexIndex + 1;
+
+            indecies[index++] = vertexIndex;
+            indecies[index++] = vertexIndex + Config::Terrain::chunksNbrTiles+1;
+            indecies[index++] = vertexIndex + Config::Terrain::chunksNbrTiles+1 + 1;
+        };
+    };
+
     // load vertecies
-	chunk->loadVertecies(indices, pow(Config::Terrain::chunksNbrTiles, 2) * 6, Material());
+	chunk->loadVertecies(indecies, numberIndecies, Material());
 
     //--------------------------------------------------------------------------
     //--------------------------- Textures -------------------------------------
@@ -112,12 +91,12 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     std::string defuseTextureName = std::string("grass1Defuse");
 
     if (!isFlat) {
+        /*
         ////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////
         // generate hightmap texture
         std::string heightTextureName = "terrainHeight_" + std::to_string(posGridX) + "_" + std::to_string(posGridZ);
         // defuseTextureName = heightTextureName;
-
 
         // stbi_write_jpg(("tmp/" + heightTextureName + ".jpg").c_str(), Config::Terrain::chunksNbrTiles, Config::Terrain::chunksNbrTiles, 3, heightMap_pixels, 100);
         // TextureLoader::createTexture(heightTextureName, "tmp/" + heightTextureName + ".jpg", false);
@@ -144,23 +123,23 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
         glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_LOD_BIAS, -1.0f);
 
         TextureLoader::addTexture(heightTextureName, heightMapTexture);
-
+*/
         ////////////////////////////////////////////////////////////////////////
         ////////////////////////////////////////////////////////////////////////
         // hights for collider
-        for (int j = 0; j < Config::Terrain::chunksNbrTiles + 1; ++j) {
-            for (int i = 0; i < Config::Terrain::chunksNbrTiles + 1; ++i) {
-                tilePosX = i * Config::Terrain::tileSize + posX;
-                tilePosZ = j * Config::Terrain::tileSize + posZ;
-                // for collider
-                heights.push_back(Bioms::getHight(tilePosX, tilePosZ));
-            };
-        };
+        // for (int j = 0; j <= Config::Terrain::chunksNbrTiles; ++j) {
+        //     for (int i = 0; i <= Config::Terrain::chunksNbrTiles; ++i) {
+        //         tilePosX = i * Config::Terrain::tileSize + posX;
+        //         tilePosZ = j * Config::Terrain::tileSize + posZ;
+        //         // for collider
+        //         heights.push_back(Bioms::getHight(tilePosX, tilePosZ));
+        //     };
+        // };
 
         // terrain chunk collider
         btTransform t;
         t.setIdentity();
-        t.setOrigin(btVector3(posX + Config::Terrain::chunksNbrTiles* Config::Terrain::tileSize / 2, 0.0f, posZ + Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize / 2));
+        t.setOrigin(btVector3(posX + Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize / 2, 0.0f, posZ + Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize / 2));
 
 /*
         // plane shape
@@ -179,7 +158,7 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
             Config::Terrain::chunksNbrTiles + 1,
             &heights[0],
 
-            0.0f,
+            0.0f, // obsolete (using PHY_FLOAT)
            -pow(Config::Terrain::amplitude, Config::Terrain::elevation),
             pow(Config::Terrain::amplitude, Config::Terrain::elevation),
 
@@ -203,10 +182,10 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
         // set some attribs
         body->setActivationState(DISABLE_DEACTIVATION);
         body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
-        body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+        if (posGridX != 10 || posGridZ != 10) body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
         // body->setUserPointer(body);
     };
-    delete[] heightMap_pixels;
+    // delete[] heightMap_pixels;
 
     //----------------------------------------------------------------------------
     //----------------------------------------------------------------------------
@@ -233,7 +212,7 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     // chunk->meshGroups[0]->material.specular = glm::vec3(color.r/4, color.g/4, color.b/4);
     // chunk->meshGroups[0]->material.shininess = 8.0f;
 
-    // chunk->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture(defuseTextureName);
+    // chunk->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture(defuseTextureName); // set default shader
     // chunk->meshGroups[0]->material.ambient = glm::vec3(2.0f, 2.0f, 2.0f);
     // chunk->meshGroups[0]->material.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
     // chunk->meshGroups[0]->material.specular = glm::vec3(0.0f, 0.0f, 0.0f);

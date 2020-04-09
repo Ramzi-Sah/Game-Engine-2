@@ -56,9 +56,9 @@ float shadowCalculation(vec4 fragPosLightSpace) {
     float closestDepth = texture(u_shadowMap, projCoords.xy).r;
 
     // check whether current frag pos is in shadow
-    float shadow = projCoords.z > closestDepth  ? 1.0 : 0.0;
+    // float shadow = projCoords.z > closestDepth  ? 1.0 : 0.0;
 
-/*
+// /*
     float shadow = 0.0f;
     // blur
     vec2 texelSize = 1.0 / textureSize(u_shadowMap, 0);
@@ -69,7 +69,7 @@ float shadowCalculation(vec4 fragPosLightSpace) {
         };
     };
     shadow /= 9;
-*/
+// */
     return shadow;
 };
 
@@ -104,8 +104,8 @@ void main() {
     diffuse_tmp = diffuse;
     specular_tmp = specular;
 
-    ambient_tmp *= vec3(texture(u_textures.grass, v_uv)) * (gradient);
-    diffuse_tmp *= vec3(texture(u_textures.grass, v_uv)) * (gradient);
+    ambient_tmp *= vec3(texture(u_textures.grass, v_uv)) * (gradient - 0.0f);
+    diffuse_tmp *= vec3(texture(u_textures.grass, v_uv)) * (gradient - 0.0f);
 
     // final color result
     FragColor = vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
@@ -116,8 +116,8 @@ void main() {
     diffuse_tmp = diffuse;
     specular_tmp = specular;
 
-    ambient_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - (gradient));
-    diffuse_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - (gradient));
+    ambient_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - gradient + 0.0f);
+    diffuse_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - gradient + 0.0f);
 
     FragColor += vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
 // */

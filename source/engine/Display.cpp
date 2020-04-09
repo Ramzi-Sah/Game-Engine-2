@@ -134,6 +134,12 @@ void Display::key_callback(GLFWwindow* window, int key, int scancode, int action
             debug::renderCameraFrustum();
         };
     };
+    // F4
+    if (action == 1) {
+        if (key == 293) {
+            debug::f4Pressed();
+        };
+    };
 };
 
 double Display::mouseXPos;

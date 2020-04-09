@@ -11,8 +11,7 @@ float Bioms::getHight(float x, float z) {
     float height = hightNoise.noise(x * Config::Terrain::frequancy, z * Config::Terrain::frequancy) * Config::Terrain::amplitude +
     hightNoise.noise(x * Config::Terrain::frequancy * 2, z * Config::Terrain::frequancy * 2) * Config::Terrain::amplitude / 2 +
     hightNoise.noise(x * Config::Terrain::frequancy * 4, z * Config::Terrain::frequancy * 4) * Config::Terrain::amplitude / 4 +
-    hightNoise.noise(x * Config::Terrain::frequancy * 8, z * Config::Terrain::frequancy * 8) * Config::Terrain::amplitude / 8 +
-    hightNoise.noise(x * Config::Terrain::frequancy * 20, z * Config::Terrain::frequancy * 20) * Config::Terrain::amplitude / 10;
+    hightNoise.noise(x * Config::Terrain::frequancy * 8, z * Config::Terrain::frequancy * 8) * Config::Terrain::amplitude / 8;
 // */
 
     // if (height < 0) height = -height;

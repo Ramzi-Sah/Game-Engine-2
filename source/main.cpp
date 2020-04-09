@@ -36,15 +36,18 @@
 Model* createPlane();
 Model* createFrustum(glm::vec4* frustum);
 
-// create cubes
+// create debugEntities
 int nbrCubes = 200;
-std::vector<Entity*> cubes;
+std::vector<Entity*> debugEntities;
 void createCubes(int nbr);
-void deleteCubes();
+void shootShpere(glm::vec3 pos, glm::vec3 dir);
+void deleteDebugEntities();
 namespace debug {
 	void spaceBarPressed() {
-		deleteCubes();
-		createCubes(nbrCubes);
+		// deleteDebugEntities();
+		// createCubes(nbrCubes);
+
+		shootShpere(Camera::getPos(), Camera::getDir());
 	};
 	void f2Pressed() {
 		Physics::debugDraw();
@@ -57,7 +60,7 @@ namespace debug {
 		frustum->meshGroups[0]->material.diffuse = glm::vec3(0.0f, 0.0f, 0.0f);
 		frustum->meshGroups[0]->material.ambient = glm::vec3(2.0f, 1.8f, 0.0f);
 		frustum->meshGroups[0]->material.specular = glm::vec3(0.0f, 0.0f, 0.0f);
-		frustum->meshGroups[0]->material.opacity = 0.5f;
+		frustum->meshGroups[0]->material.opacity = 0.25f;
 		frustum->castShadow = false;
 		frustum->faceCulled = false;
 		// frustum->setPolygoneMode(GL_LINE);
@@ -82,8 +85,15 @@ namespace debug {
 		//
 		// Entity* frustumEnt1 = new Entity(frustum1, frustumBody1);
 		// Entities::addEntity(frustumEnt1);
-		// cubes.push_back(frustumEnt1);
+		// debugEntities.push_back(frustumEnt1);
 		//----------------------------------------------------------------------
+	};
+
+	void f4Pressed() {
+		deleteDebugEntities();
+		Entities::disposeEntity(frustumEnt);
+		Physics::debugDraw();
+		PhysicsDebugDrawer::dispose();
 	};
 };
 
@@ -160,7 +170,7 @@ int main() {
 */
 
 	//--------------------------------------------------------------------------
-	// create some cubes
+	// create some debugEntities
 	// createCubes(nbrCubes);
 
 	// center of the world
@@ -207,7 +217,7 @@ int main() {
 
 	// glocs
 	// for (int i = 0; i < 100; i++) {
-	// 	Model* glocs = new Model(ModelLoader::getModel("gloc"));
+	// 	Model* glocs = new Model(ModelLoader::getModel("pawn"));
 	// 	glocs->setScale(glm::vec3(0.5f, 0.5f, 0.5f));
 	// 	glocs->updateTransform();
 	// 	PhysicsEntity* glocsBody = new PhysicsEntity_Box(btVector3(0.1f, 0.2f, 0.5f), 30.0f, btVector3(rand() % 100, 10.0f, rand() % 100));
@@ -319,7 +329,7 @@ int main() {
 	};
 
 	Entities::disposeAllEntities();
-	Terrain::dispose();
+	// Terrain::dispose();
 	Physics::dispose();
 	// glfwTerminate();
 
@@ -462,8 +472,10 @@ void createCubes(int nbr) {
 			int(Config::Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX)),
 			int(Config::Terrain::islandSize) * (static_cast<float>(rand()) / static_cast<float>(RAND_MAX))
 		);
+		model->setPos(pos);
+
 		/*
-		cubes[i]->setRot(
+		debugEntities[i]->setRot(
 			static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * 180,
 			glm::vec3(
 				static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
@@ -507,17 +519,66 @@ void createCubes(int nbr) {
 		// create entity
 		Entity* cube = new Entity(model, body);
 
-		// push to cubes vector
+		// push to debugEntities vector
 		Entities::addEntity(cube);
 
-		// add to cubes list
-		cubes.push_back(cube);
+		// add to debugEntities list
+		debugEntities.push_back(cube);
 	};
 };
-void deleteCubes() {
+void shootShpere(glm::vec3 pos, glm::vec3 dir) {
+	Model* model = new Model(ModelLoader::getModel("sphere"));
+
+	model->setPos(pos);
+
+	model->setScale(
+		glm::vec3(
+			0.5f,
+			0.5f,
+			0.5f
+		)
+	);
+	model->updateTransform();
+
+	// enable depth testing shader
+	// model->setShaderProgram(ShaderLoader::getShader("Select"));
+
+	// init physics
+	PhysicsEntity* body = new PhysicsEntity_Sphere(0.5f, 5.0f, btVector3(pos.x, pos.y, pos.z));
+
+	// apply force
+	dir *= 350.0f;
+	body->rigidBody->applyCentralImpulse(btVector3(dir.x, dir.y, dir.z));
+
+	// set material
+	glm::vec3 color = glm::vec3(
+		static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+		static_cast<float>(rand()) / static_cast<float>(RAND_MAX),
+		static_cast<float>(rand()) / static_cast<float>(RAND_MAX)
+	);
+	// glm::vec3 color = glm::vec3(
+	// 	1.0f,
+	// 	0.0f,
+	// 	0.0f
+	// );
+
+	model->meshGroups[0]->material.ambient = color;
+	model->meshGroups[0]->material.diffuse = color;
+	model->meshGroups[0]->material.specular = color;
+
+	// create entity
+	Entity* sphere = new Entity(model, body);
+
+	// push to Entities
+	Entities::addEntity(sphere);
+
+	// add to debugEntities list
+	debugEntities.push_back(sphere);
+};
+void deleteDebugEntities() {
 	// Entities::disposeAllEntities();
-	for (int i = 0; i < cubes.size(); i++) {
-		Entities::disposeEntity(cubes[i]);
+	for (int i = 0; i < debugEntities.size(); i++) {
+		Entities::disposeEntity(debugEntities[i]);
 	};
 };
 
