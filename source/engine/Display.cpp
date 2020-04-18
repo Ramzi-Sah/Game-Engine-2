@@ -19,6 +19,8 @@ Display::Display(std::string title, unsigned int window_width, unsigned int wind
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+    glfwWindowHint(GLFW_SAMPLES, 4);
+
     // GLFWwindow is a struct containing window attribs
     window = glfwCreateWindow(window_width, window_height, title.c_str(), NULL, NULL);
     if (!window) {
@@ -64,8 +66,7 @@ Display::Display(std::string title, unsigned int window_width, unsigned int wind
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); // set blending function
 
     // anti aliasing
-    // glfwWindowHint(GLFW_SAMPLES, 4);
-    // glEnable(GL_MULTISAMPLE);
+    glEnable(GL_MULTISAMPLE);
 
     // enable sentencil
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);

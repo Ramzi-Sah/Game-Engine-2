@@ -63,7 +63,8 @@ void ModelLoader::createModel(std::string modelName, std::string modelPath) {
                 unsigned int textureMap = TextureLoader::createTexture(
                     selectedMaterialName,
                     "assets/models/" + modelName + defiseMapFilePath,
-                    false
+                    false,
+                    GL_CLAMP_TO_EDGE
                 );
 
                 // set defuse map

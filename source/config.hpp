@@ -2,17 +2,19 @@
 #define SAH_CONFIG
 
 #include <iostream>
+#include <glm/glm.hpp>
 
 namespace Config {
     namespace Window {
         static std::string title = "Engine";
         static unsigned int height = 720;
         static unsigned int width = height * 16 / 9;
-        static float version = 0.05f;
+        static float version = 0.07f;
     };
 
     namespace Game {
-        static float viewDistance = 200.0f;
+        static float viewDistance = 300.0f;
+        static glm::vec3 fogColor = glm::vec3(1.0f, 1.0f, 1.0f);
         // TODO: add shadow maps resolution
     };
 
@@ -37,13 +39,18 @@ namespace Config {
         static const float tileSize = 1.0f;
 
         // island
-        static const float islandSize = 1000.0f;
+        static const float islandSize = 1500.0f;
 
         // Bioms
         static const unsigned int seed = 0;
-        static const float frequancy = 0.005f;
-        static const float amplitude = 6.0f;
-        static const unsigned int elevation = 3;
+        static const float frequancy = 0.003f;
+        static const float amplitude = 15.0f;
+        static const unsigned int elevation = 2;
+        static const unsigned int nbrOctaves = 5;
+
+        // borders
+        static const float borderUVSpeed = 0.005f;
+        static const float uvSizeMult = 1.0f;
     };
 };
 

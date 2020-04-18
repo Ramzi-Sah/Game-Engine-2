@@ -12,7 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../common/Vertex.hpp"
-#include "AssetLoader.hpp"
+#include "assets/AssetLoader.hpp"
 
 class Line {
 private:
@@ -29,7 +29,6 @@ public:
     glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
 
     void render();
-
 };
 
 #endif

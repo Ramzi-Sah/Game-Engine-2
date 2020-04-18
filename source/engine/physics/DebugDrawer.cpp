@@ -25,6 +25,10 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from, const btVector3& to, co
 	lines.push_back(line);
 };
 
+void PhysicsDebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color) {
+    std::cout << "physics debug: box should be drawn: " << bbMin.getX() << " " << bbMin.getY() << " " << bbMin.getZ() << '\n';
+};
+
 void PhysicsDebugDrawer::drawContactPoint(const btVector3& PointOnB, const btVector3& normalOnB, btScalar distance, int lifeTime, const btVector3& color) {
 	std::cout << "physics debug: contact point should be drawn" << '\n';
 };

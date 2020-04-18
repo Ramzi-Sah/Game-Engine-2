@@ -232,7 +232,7 @@ void GUI::update(float deltaTime) {
             int shaders_i = 0;
             static int shader_current = 0;
             for (auto it = ShaderLoader::shaderPrograms.cbegin(); it != ShaderLoader::shaderPrograms.cend(); ++it) {
-                if (it->first == "Hoover" || it->first == "Select" || it->first == "ScreenQuad" || it->first == "ShadowDepth" || it->first == "Line") continue; // remove some shaders
+                if (it->first != "Default" && it->first != "DefaultPotato" && it->first != "Depth" && it->first != "UV" && it->first != "Normal") continue; // remove some shaders
                 if (selectedEntity->model->getMainShaderProgram() == it->second) shader_current = shaders_i; // reset selected shader to model shader
                 shaders[shaders_i] = (it->first).c_str();
                 shaders_i++;

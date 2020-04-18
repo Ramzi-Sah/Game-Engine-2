@@ -2,15 +2,15 @@
 
 std::map<std::string, unsigned int> TextureLoader::m_textures;
 
-unsigned int TextureLoader::createTexture(std::string textureName, std::string filePath, bool AlphaChanel) {
+unsigned int TextureLoader::createTexture(std::string textureName, std::string filePath, bool AlphaChanel, unsigned int warpping) {
     // create gl texture object
     unsigned int texture;
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
 
     // set the texture wrapping parameters
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, warpping);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, warpping);
 
     // set texture filtering parameters
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

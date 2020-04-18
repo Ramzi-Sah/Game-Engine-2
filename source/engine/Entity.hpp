@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "../engine/Physics.hpp"
+#include "../engine/physics/Physics.hpp"
 #include "../engine/Model.hpp"
 
 class Entity {
@@ -27,6 +27,7 @@ public:
 
     void update();
     bool enabled = true;
+    bool optimize = true;
 
     // transform
     void setPos(glm::vec3 _position);
@@ -42,9 +43,9 @@ public:
     void setKinematicTemp(bool state);
     bool getIsKinematic();
 
-    void setMass(float _mass);
-    float getMass();
-    float mass;
+    // void setMass(float _mass);
+    // float getMass();
+    // float mass;
 
     bool renderCollider = false;
 };

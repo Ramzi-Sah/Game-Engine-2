@@ -48,7 +48,8 @@ void Entities::update(glm::vec3 camPos) {
     // update all entities
     for (int i = 0; i < entities.size(); i++) {
         // check if with in view distance
-        entities[i]->enabled = Geometry::distance2d(entities[i]->getPos(), camPos) <= Config::Game::viewDistance ? true : false;
+        if(entities[i]->optimize)
+            entities[i]->enabled = Geometry::distance2d(entities[i]->getPos(), camPos) <= Config::Game::viewDistance ? true : false;
 
         // TODO: set to sleep mode if not in view distance
         // body->setActivationState(DISABLE_DEACTIVATION);

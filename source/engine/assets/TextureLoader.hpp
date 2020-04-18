@@ -17,7 +17,7 @@ public:
     TextureLoader() {};
     ~TextureLoader() {};
 
-    static unsigned int createTexture(std::string textureName, std::string filePath, bool AlphaChanel);
+    static unsigned int createTexture(std::string textureName, std::string filePath, bool AlphaChanel, unsigned int warpping);
     static void addTexture(std::string _textureName, unsigned int _texture);
     static unsigned int getTexture(std::string textureName);
 };

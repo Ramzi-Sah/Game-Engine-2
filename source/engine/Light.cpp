@@ -49,6 +49,31 @@ void Light::createDirectionalLight(glm::vec3 _lightDir, glm::vec3 _lightColor) {
     };
 };
 
+//-------------------------------- Fog -----------------------------------------
+void Light::initFog() {
+    // set all shader program's uniforms
+    for (auto it = ShaderLoader::shaderPrograms.cbegin(); it != ShaderLoader::shaderPrograms.cend(); ++it) {
+        glUseProgram(it->second);
+
+        glUniform1f(
+            glGetUniformLocation(it->second, "u_near"),
+            0.01f
+        );
+
+        glUniform1f(
+            glGetUniformLocation(it->second, "u_far"),
+            Config::Game::viewDistance
+        );
+
+        glUniform3f(
+            glGetUniformLocation(it->second, "u_fogColor"),
+            Config::Game::fogColor.x,
+            Config::Game::fogColor.y,
+            Config::Game::fogColor.z
+        );
+    };
+};
+
 //------------------------------ Shadow map ------------------------------------
 unsigned int Light::depthFrame;
 unsigned int Light::depthMap;
@@ -104,12 +129,7 @@ void Light::recalculateLightSpaceMat(glm::vec4* frustumW) {
     };
 
     // calculate shadow box projection
-    // glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -100.0f, 100.0f);
-    // glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, minY, maxY);
     glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -minZ, -maxZ);
-    // glm::mat4 lightProjection = glm::ortho(minX, maxX, -minZ, -maxZ, minY, maxY);
-    // glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, -minZ, -maxZ);
-    // glm::mat4 lightProjection = glm::ortho(minX, maxX, -minZ, -maxZ, -10.0f, 10.0f);
 
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
@@ -123,26 +143,6 @@ void Light::recalculateLightSpaceMat(glm::vec4* frustumW) {
             glm::value_ptr(lightSpaceMatrix)
         );
     };
-
-/*
-    //----------------------------set near frustum------------------------------
-    frustumL[0] = glm::vec4(maxX, maxY, minZ, 1.0f);   // nearRightUp
-    frustumL[1] = glm::vec4(minX, maxY, minZ, 1.0f);   // nearLeftUp
-    frustumL[2] = glm::vec4(maxX, minY, minZ, 1.0f);   // nearRightDown
-    frustumL[3] = glm::vec4(minX, minY, minZ, 1.0f);   // nearLeftDown
-
-    //--------------------set far frustum-----------------------
-    frustumL[4] = glm::vec4(maxX, maxY, maxZ, 1.0f);    // farRightUp
-    frustumL[5] = glm::vec4(minX, maxY, maxZ, 1.0f);    // farLeftUp
-    frustumL[6] = glm::vec4(maxX, minY, maxZ, 1.0f);    // farRightDown
-    frustumL[7] = glm::vec4(minX, minY, maxZ, 1.0f);    // farLeftDown
-
-    // calculate frustum in world space
-    for (int i = 0; i < 8; i++) {
-        frustumL[i] = frustumL[i] * lightView;
-    };
-    //--------------------------------------------------------------------------
-*/
 };
 glm::vec4* Light::getFrustumLight() {
     return frustumL;

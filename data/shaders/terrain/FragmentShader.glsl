@@ -29,7 +29,10 @@ uniform sampler2D u_shadowMap;
 // textures
 struct Textures {
     sampler2D grass;
+    sampler2D grass_specular;
+
     sampler2D rock;
+    sampler2D rock_specular;
 };
 uniform Textures u_textures;
 
@@ -73,8 +76,17 @@ float shadowCalculation(vec4 fragPosLightSpace) {
     return shadow;
 };
 
+// for fog
+uniform float u_near;
+uniform float u_far;
+uniform vec3 u_fogColor;
+float LinearizeDepth(float depth) {
+    float z = depth * 2.0 - 1.0; // back to NDC
+    return (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near)) / u_far;
+};
 
 vec3 ambient_tmp, diffuse_tmp, specular_tmp;
+float gradCoeficient;
 void main() {
 
     // shadow calculations
@@ -104,8 +116,11 @@ void main() {
     diffuse_tmp = diffuse;
     specular_tmp = specular;
 
-    ambient_tmp *= vec3(texture(u_textures.grass, v_uv)) * (gradient - 0.0f);
-    diffuse_tmp *= vec3(texture(u_textures.grass, v_uv)) * (gradient - 0.0f);
+    gradCoeficient = (gradient - 0.0f);
+
+    ambient_tmp *= vec3(texture(u_textures.grass, v_uv)) * gradCoeficient;
+    diffuse_tmp *= vec3(texture(u_textures.grass, v_uv)) * gradCoeficient;
+    specular_tmp *= vec3(texture(u_textures.grass_specular, v_uv)) * gradCoeficient;
 
     // final color result
     FragColor = vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
@@ -116,9 +131,15 @@ void main() {
     diffuse_tmp = diffuse;
     specular_tmp = specular;
 
-    ambient_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - gradient + 0.0f);
-    diffuse_tmp *= vec3(texture(u_textures.rock, v_uv)) * (1.0f - gradient + 0.0f);
+    gradCoeficient = (1.0f - gradient + 0.0f);
+
+    ambient_tmp *= vec3(texture(u_textures.rock, v_uv)) * gradCoeficient;
+    diffuse_tmp *= vec3(texture(u_textures.rock, v_uv)) * gradCoeficient;
+    specular_tmp *= vec3(texture(u_textures.rock_specular, v_uv)) * gradCoeficient;
 
     FragColor += vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
+
+    // mix with  fog
+    FragColor = mix(FragColor, vec4(u_fogColor, 1.0f), LinearizeDepth(gl_FragCoord.z));
 // */
 };

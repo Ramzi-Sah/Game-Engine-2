@@ -5,7 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
-#include "AssetLoader.hpp"
+#include "../config.hpp"
+#include "assets/AssetLoader.hpp"
 
 class Light {
 private:
@@ -20,6 +21,9 @@ private:
 public:
     static void setAmbientLight(glm::vec3 _ambientLight);
     static void createDirectionalLight(glm::vec3 lightDir, glm::vec3 lightColor);
+
+    // for fog
+    static void initFog();
 
     // for shadows
     static void initShadowMap();

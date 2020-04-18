@@ -3,12 +3,13 @@
 Entity::Entity(Model* _model, PhysicsEntity* _pysicsEntity) {
     model = _model;
     pysicsEntity = _pysicsEntity;
+    transform = pysicsEntity->rigidBody->getWorldTransform();
 
     // set mass
-    btVector3 inertia;
-    float massVal;
-    pysicsEntity->rigidBody->getCollisionShape()->calculateLocalInertia(massVal, inertia);
-    mass = massVal;
+    // btVector3 inertia;
+    // float massVal;
+    // pysicsEntity->rigidBody->getCollisionShape()->calculateLocalInertia(massVal, inertia);
+    // mass = massVal;
 };
 
 Entity::~Entity() {
@@ -120,17 +121,18 @@ void Entity::setKinematic(bool state) {
 bool Entity::getIsKinematic() {
     return isKinematic;
 };
-
+/*
 void Entity::setMass(float _mass) {
-    /*
+
     btVector3 inertia;
     float massVal;
     pysicsEntity->rigidBody->getCollisionShape()->calculateLocalInertia(massVal, inertia);
 
     mass = _mass;
     pysicsEntity->rigidBody->setMassProps(mass, inertia);
-    */
+
 };
 float Entity::getMass() {
     return mass;
 };
+*/

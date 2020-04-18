@@ -327,7 +327,7 @@ Ray Camera::rayCast(unsigned int screenX, unsigned int screenY) {
 
     // convert to openGL normalized coordinate system
     float x = 2.0f * screenX / windowWidth - 1.0f;
-    float y = 1.0f - 2.0f * screenY / windowHeight ;
+    float y = 1.0f - 2.0f * screenY / windowHeight;
 
     // vec4 front direction vector
     glm::vec4 rayClip = glm::vec4(x, y, -1.0f, 1.0f);

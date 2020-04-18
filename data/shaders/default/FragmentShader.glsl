@@ -65,6 +65,15 @@ float shadowCalculation(vec4 fragPosLightSpace) {
     return shadow;
 };
 
+// for fog
+uniform float u_near;
+uniform float u_far;
+uniform vec3 u_fogColor;
+float LinearizeDepth(float depth) {
+    float z = depth * 2.0 - 1.0; // back to NDC
+    return (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near)) / u_far;
+};
+
 void main() {
     // shadow calculations
     float shadow = shadowCalculation(v_posLightSpace);
@@ -83,12 +92,16 @@ void main() {
     vec3 specular = spec * diffuseLightColor * u_material.specular;
 
     // set textures
-    ambient *= vec3(texture(u_material.diffuseMap, v_uv));
-    diffuse *= vec3(texture(u_material.diffuseMap, v_uv));
+    vec4 diff_texture = texture(u_material.diffuseMap, v_uv);
+    ambient *= vec3(diff_texture);
+    diffuse *= vec3(diff_texture);
     specular *= vec3(texture(u_material.specularMap, v_uv));
 
     // final color result
-    FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), u_material.opacity);
+    FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), u_material.opacity * diff_texture.a);
+
+    // mix with  fog
+    FragColor = mix(FragColor, vec4(u_fogColor, 1.0f), LinearizeDepth(gl_FragCoord.z));
 /*
     //--------------------------------------------------------------------------
     // grayScale

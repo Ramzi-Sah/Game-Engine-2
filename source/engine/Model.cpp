@@ -243,11 +243,6 @@ void Model::setModelMatrixUniform() {
     );
 };
 
-void Model::updateTransform() {
-    // recalculate model matrix
-    modelMatrix = position * rotation * scale;
-};
-
 void Model::setPos(glm::vec3 _position) {
     // set position
     position = glm::translate(glm::mat4(1.0f), _position);
@@ -263,6 +258,11 @@ void Model::setRot(glm::quat _rotation) {
 void Model::setScale(glm::vec3 _scale) {
     // set rotation
     scale = glm::scale(glm::mat4(1.0f), _scale);
+};
+
+void Model::updateTransform() {
+    // recalculate model matrix
+    modelMatrix = position * rotation * scale;
 };
 
 //------------------------------------------------------------------------------

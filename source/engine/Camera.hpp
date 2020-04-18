@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../config.hpp"
-#include "AssetLoader.hpp"
+#include "assets/AssetLoader.hpp"
 #include "../common/Geometry.hpp"
 
 struct Ray {

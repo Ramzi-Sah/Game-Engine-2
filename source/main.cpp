@@ -5,32 +5,23 @@
 	Description:
 		program main entry point
 */
-
-// for DEBUG
-#include <bits/stdc++.h>
-#define Debug(func) \
-	clock_t start, end; \
-	start = clock(); \
-	func; \
-	end = clock(); \
-	double time_taken = double(end - start) / double(CLOCKS_PER_SEC) * 1000; \
-	std::cout << "Time taken by func is : " << std::fixed << time_taken << std::setprecision(5) << " ms " << std::endl;
-
 #include <vector>
-
-#define STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-
-#include "engine/AssetLoader.hpp"
-#include "engine/Display.hpp"
-#include "engine/GUI.hpp"
-#include "engine/Light.hpp"
-#include "logic/Entities.hpp"
-#include "logic/world/terrain/Terrain.hpp"
 
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
+
+#include "common/debug.hpp"
+
+#define STB_IMAGE_IMPLEMENTATION
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+
+#include "engine/assets/AssetLoader.hpp"
+#include "engine/Display.hpp"
+#include "engine/GUI.hpp"
+#include "engine/Light.hpp"
+#include "engine/terrain/Terrain.hpp"
+#include "logic/Entities.hpp"
 
 // mesh generation
 Model* createPlane();
@@ -64,10 +55,13 @@ namespace debug {
 		frustum->castShadow = false;
 		frustum->faceCulled = false;
 		// frustum->setPolygoneMode(GL_LINE);
+
 		PhysicsEntity* frustumBody = new PhysicsEntity_Box(btVector3(0.0f, 0.0f, 0.0f), 0.0f, btVector3(0.0f, 0.0f, 0.0f));
 
 		if (frustumEnt != nullptr) Entities::disposeEntity(frustumEnt);
 		frustumEnt = new Entity(frustum, frustumBody);
+		frustumEnt->optimize = false;
+
 		Entities::addEntity(frustumEnt);
 		//----------------------------------------------------------------------
 		//----------------------------------------------------------------------
@@ -129,9 +123,10 @@ int main() {
 	// };
 
 	// set light
-	Light::setAmbientLight(glm::vec3(0.4f, 0.35f, 0.3f));
+	Light::setAmbientLight(glm::vec3(0.5f, 0.5f, 0.75f));
 	Light::createDirectionalLight(glm::vec3(-4.0f, 6.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
 	Light::initShadowMap();
+	Light::initFog();
 
 	//--------------------------------------------------------------------------
 	Physics::init();
@@ -184,54 +179,39 @@ int main() {
     centerEnt->setStaticFlag(true);
 	Entities::addEntity(centerEnt);
 
-	// tank
-	Model* tank = new Model(ModelLoader::getModel("t72"));
-	tank->setScale(glm::vec3(2.0f, 2.0f, 2.0f));
-	tank->updateTransform();
-	PhysicsEntity* tankBody = new PhysicsEntity_Box(btVector3(6.5f, 1.65f, 3.25f), 1000.0f, btVector3(-20.0f, 10.0f, 0.0f));
-	Entities::addEntity(new Entity(tank, tankBody));
-
 	// trees
-	// for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize)/4; i++) {
-	// 	Model* tree = new Model(ModelLoader::getModel("tree"));
-	// 	float posX = rand() % int(Config::Terrain::islandSize);
-	// 	float posZ = rand() % int(Config::Terrain::islandSize);
-	// 	PhysicsEntity* treeBody = new PhysicsEntity_Box(btVector3(1.0f, 5.0f, 1.0f), 30.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
-    //     Entity* treeEnt = new Entity(tree, treeBody);
-    //     treeEnt->setStaticFlag(true);
-	// 	Entities::addEntity(treeEnt);
-	// };
-
-	// trees 1
-	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize)/4; i++) {
-		Model* tree = new Model(ModelLoader::getModel("tree1"));
+	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 0.25f; i++) {
+		Model* tree = new Model(ModelLoader::getModel("tree"));
 		tree->setScale(glm::vec3(1.5f, 1.5f, 1.5f));
 		tree->updateTransform();
 		float posX = rand() % int(Config::Terrain::islandSize);
 		float posZ = rand() % int(Config::Terrain::islandSize);
 		PhysicsEntity* treeBody = new PhysicsEntity_Box(btVector3(1.0f, 5.0f, 1.0f), 0.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
         Entity* treeEnt = new Entity(tree, treeBody);
+		treeEnt->setRot(glm::quat(glm::radians(float(rand() % 360)), glm::vec3(0.0f, 1.0f, 0.0f)));
         treeEnt->setStaticFlag(true);
 		Entities::addEntity(treeEnt);
 	};
 
-	// glocs
-	// for (int i = 0; i < 100; i++) {
-	// 	Model* glocs = new Model(ModelLoader::getModel("pawn"));
-	// 	glocs->setScale(glm::vec3(0.5f, 0.5f, 0.5f));
-	// 	glocs->updateTransform();
-	// 	PhysicsEntity* glocsBody = new PhysicsEntity_Box(btVector3(0.1f, 0.2f, 0.5f), 30.0f, btVector3(rand() % 100, 10.0f, rand() % 100));
-	// 	Entities::addEntity(new Entity(glocs, glocsBody));
-	// };
-
-	// ak47
-	// Model* ak47 = new Model(ModelLoader::getModel("ak47"));
-	// PhysicsEntity* ak47Body = new PhysicsEntity_Box(btVector3(0.2f, 0.8f, 3.5f), 500.0f, btVector3(-10.0f, 10.0f, -20.0f));
-	// Entities::addEntity(new Entity(ak47, ak47Body));
+	// grass
+	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 1.0f; i++) {
+		Model* grass = new Model(ModelLoader::getModel("grass"));
+		grass->setMainShaderProgram(ShaderLoader::getShader("Grass"));
+		grass->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture("grassModelDefuse");
+		grass->faceCulled = false;
+		grass->castShadow = false;
+		float posX = rand() % int(Config::Terrain::islandSize);
+		float posZ = rand() % int(Config::Terrain::islandSize);
+		PhysicsEntity* grassBody = new PhysicsEntity_Box(btVector3(0.0f, 0.0f, 0.0f), 0.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
+		Entity* grassEnt = new Entity(grass, grassBody);
+		grassEnt->setRot(glm::quat(glm::radians(float(rand() % 360)), glm::vec3(0.0f, 1.0f, 0.0f)));
+        grassEnt->setStaticFlag(true);
+		Entities::addEntity(grassEnt);
+	};
 
     // charachter
-    Model* characther = new Model(ModelLoader::getModel("char"));
-    PhysicsEntity* charBody = new PhysicsEntity_Box(btVector3(0.5f, 0.0f, 0.5f), 30.0f, btVector3(-20.0f, 1.0f, -20.0f));
+    Model* characther = new Model(ModelLoader::getModel("player"));
+    PhysicsEntity* charBody = new PhysicsEntity_Box(btVector3(1.0f, 2.8f, 1.0f), 30.0f, btVector3(20.0f, 5.0f, 20.0f));
     Entities::addEntity(new Entity(characther, charBody));
 
 	// test cube
@@ -242,13 +222,8 @@ int main() {
 	// cube->meshGroups[0]->material.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
 	// cube->meshGroups[0]->material.diffuseMap = freeCam.getFrameTexture();
 	// cube->meshGroups[0]->material.specularMap = freeCam.getFrameTexture();
-	PhysicsEntity* cubeBody = new PhysicsEntity_Box(btVector3(1.0f, 1.0f, 1.0f), 50.0f, btVector3(5.0f, 1.0f, 0.0f));
+	PhysicsEntity* cubeBody = new PhysicsEntity_Box(btVector3(1.0f, 1.0f, 1.0f), 50.0f, btVector3(5.0f, 1.0f, 10.0f));
 	Entities::addEntity(new Entity(cube, cubeBody));
-
-	// test suzanne
-	Model* suzanne = new Model(ModelLoader::getModel("suzanne"));
-	PhysicsEntity* suzanneBody = new PhysicsEntity_Box(btVector3(1.0f, 1.0f, 1.0f), 1.0f, btVector3(5.0f, 10.0f, -10.0f));
-	Entities::addEntity(new Entity(suzanne, suzanneBody));
 
     //----------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(display.window)) {
@@ -337,7 +312,7 @@ int main() {
 };
 void renderScean() {
 	// clear openGL back buffer
-	glClearColor(0.661f, 0.720f, 0.959f, 1.00f);
+	glClearColor(Config::Game::fogColor.x, Config::Game::fogColor.y, Config::Game::fogColor.z, 1.00f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// debug draw
@@ -356,7 +331,8 @@ void renderSceanShadow() {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	// face culling
-	// glEnable(GL_CULL_FACE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 	// glCullFace(GL_FRONT);
 
 	// render terrain
@@ -364,8 +340,6 @@ void renderSceanShadow() {
 
 	// render entities
 	Entities::renderShadows();
-
-	// glCullFace(GL_BACK);
 };
 
 //-----------------------------------------------------------------------------
