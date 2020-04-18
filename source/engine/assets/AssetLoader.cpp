@@ -59,7 +59,6 @@ void AssetLoader::createTextures() {
 
     // world border
     TextureLoader::createTexture("worldBorder", "data/textures/terrain/borders.png", true, GL_REPEAT);
-    TextureLoader::createTexture("worldBorder1", "data/textures/terrain/borders1.png", true, GL_REPEAT);
 
     //grass 1
     TextureLoader::createTexture("grass1Defuse", "data/textures/grass/grass1/grass01.jpg", false, GL_REPEAT);
