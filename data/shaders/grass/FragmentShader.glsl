@@ -22,6 +22,13 @@ struct Material {
 
 uniform Material u_material;
 
+// fog
+uniform vec3 u_fogColor;
+in float v_visibility;
+
 void main() {
     FragColor = texture(u_material.diffuseMap, v_uv);
+
+    // mix with  fog
+    FragColor = mix(vec4(u_fogColor, 1.0f), FragColor, v_visibility);
 };

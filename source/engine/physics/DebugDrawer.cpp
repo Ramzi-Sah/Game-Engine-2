@@ -13,6 +13,19 @@ void PhysicsDebugDrawer::dispose() {
 	};
 	lines.clear();
 };
+void PhysicsDebugDrawer::addLine(Line* line) {
+	lines.push_back(line);
+};
+
+
+void PhysicsDebugDrawer::drawRay(Ray ray, glm::vec3 color) {
+	Line* line = new Line(
+		ray.position,
+		ray.direction
+	);
+	line->color = color;
+	lines.push_back(line);
+};
 
 //------------------------------------------------------------------------------
 void PhysicsDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {

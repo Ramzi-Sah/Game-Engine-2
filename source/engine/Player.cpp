@@ -11,9 +11,8 @@ void Player::init(glm::vec3 _position) {
     playerEntity = new Entity(characther, charBody);
     playerEntity->setStaticFlag(true);
 
-    // TODO: add on config file
-    playerEntity->cameraOffsetPos = glm::vec3(0.0f, 2.0f, 0.0f);
-    playerEntity->cameraDistance = 15.0f;
+    // set view mode
+    setViewMode(THIRD_PERSON);
 };
 
 void Player::update(float deltaTime) {
@@ -24,10 +23,14 @@ void Player::update(float deltaTime) {
     playerEntity->update();
 };
 void Player::render() {
+    // do not render body if in first person mode
+    if (viewMode == FIRST_PERSON && playerEntity->cameraAttached)
+        return;
+
     // render player
     playerEntity->model->render();
 
-    // render hitbox
+    // render collider
     // playerEntity->pysicsEntity->model->render();
 };
 void Player::renderShadow() {
@@ -95,6 +98,12 @@ void Player::key_callback(int key, int action) {
         if (key == Config::Keymap::SPEED) {
             Config::Player::speed *= Config::Player::speedRapidMult;
         };
+
+        // basculate view mod
+        if (key == Config::Keymap::BASCULATE_VIEW_MOD) {
+            Player::basculateViewMode();
+        };
+
     } else if (action == 0) {
         if (key == Config::Keymap::FORWARD) {
             input_forward = false;
@@ -117,8 +126,6 @@ void Player::key_callback(int key, int action) {
 };
 float Player::yaw = 90.0f;
 float Player::pitch = 0.0f;
-float Player::lastX = Config::Window::width / 2;
-float Player::lastY = Config::Window::height / 2;
 void Player::mouse_callback(bool mouseDisabled, float posX, float posY) {
     // return if camera not attached to player entity
     if (!playerEntity->cameraAttached)
@@ -132,4 +139,34 @@ void Player::mouse_callback(bool mouseDisabled, float posX, float posY) {
 
     // set entity rotaion
     playerEntity->setRot(glm::angleAxis(glm::radians(yaw -90.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+};
+
+//------------------------------------------------------------------------------
+ViewMode Player::viewMode = THIRD_PERSON;
+void Player::setViewMode(ViewMode _viewMode) {
+    viewMode = _viewMode;
+
+    // apply view mode
+    viewModeApply();
+};
+void Player::basculateViewMode() {
+    // select next view mode
+    viewMode = static_cast<ViewMode>(static_cast<int>(viewMode) + 1);
+
+    // check if last view mod and select first
+    if (viewMode == SAH_ENUM_LAST_VALUE) viewMode = static_cast<ViewMode>(0);
+
+    // apply view mode
+    viewModeApply();
+};
+void Player::viewModeApply() {
+    if (viewMode == FIRST_PERSON){
+        // first person
+        playerEntity->cameraOffsetPos = glm::vec3(0.0f, 3.0f, 0.0f);
+        playerEntity->cameraDistance = 0.0f;
+    } else if (viewMode == THIRD_PERSON) {
+        // third person
+        playerEntity->cameraOffsetPos = glm::vec3(0.0f, 2.0f, 0.0f);
+        playerEntity->cameraDistance = 15.0f;
+    };
 };

@@ -1,5 +1,5 @@
-#ifndef SAH_MODELLOADER
-#define SAH_MODELLOADER
+#ifndef SAH_MODEL_LOADER
+#define SAH_MODEL_LOADER
 
 #include <iostream>
 #include <fstream>

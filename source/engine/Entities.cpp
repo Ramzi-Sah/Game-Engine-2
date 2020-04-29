@@ -145,7 +145,6 @@ void Entities::mouse_callback(bool mouseDesabled, int mouseXPos, int mouseYPos) 
     if (!mouseDesabled) {
         // ray cast & get entity
         Ray ray = Camera::rayCast(mouseXPos, mouseYPos);
-        ray.setSize(10000);
         hooveredEntity = getEntity(Physics::rayCollisionCheck(ray));
 
         // check if hovered something
@@ -165,9 +164,11 @@ void Entities::mouse_button_callback(bool mouseDesabled, int button, int action,
     if (!mouseDesabled) {
         if (action == 1) {
             // std::cout << "mouse clicked: " << mouseXPos << " " << mouseYPos << '\n';
+            
             // screen pos to ray
             Ray ray = Camera::rayCast(mouseXPos, mouseYPos);
-            ray.setSize(10000);
+            // PhysicsDebugDrawer::drawRay(ray, glm::vec3(1.0f, 0.0f, 0.0f));
+
             Entity* clickedEntity = getEntity(Physics::rayCollisionCheck(ray));
 
             // set entity as not selected

@@ -1,5 +1,5 @@
-#ifndef SAH_TEXTURELOADER
-#define SAH_TEXTURELOADER
+#ifndef SAH_TEXTURE_LOADER
+#define SAH_TEXTURE_LOADER
 
 #include <iostream>
 #include <map>

@@ -7,6 +7,8 @@
 #include "Camera.hpp"
 #include "../config.hpp"
 
+enum ViewMode {FIRST_PERSON, THIRD_PERSON, SAH_ENUM_LAST_VALUE};
+
 class Player {
 private:
     static Entity* playerEntity;
@@ -17,8 +19,14 @@ private:
 
     static float yaw;
     static float pitch;
-    static float lastX;
-    static float lastY;
+
+    static bool input_forward;
+    static bool input_backward;
+    static bool input_left;
+    static bool input_right;
+
+    static ViewMode viewMode;
+    static void viewModeApply();
 
 public:
     static void init(glm::vec3 _position);
@@ -28,12 +36,11 @@ public:
     static Entity* getEntity();
 
     static void inputUpdate(float deltaTime);
-    static bool input_forward;
-    static bool input_backward;
-    static bool input_left;
-    static bool input_right;
     static void key_callback(int key, int action);
     static void mouse_callback(bool mouseDisabled, float posX, float posY);
+
+    static void setViewMode(ViewMode _viewMode);
+    static void basculateViewMode();
 };
 
 #endif

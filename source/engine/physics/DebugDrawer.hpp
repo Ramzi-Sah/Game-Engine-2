@@ -8,6 +8,7 @@
 #include <LinearMath/btIDebugDraw.h>
 
 #include "../Line.hpp"
+#include "../../common/Ray.hpp"
 
 class PhysicsDebugDrawer : public btIDebugDraw {
 private:
@@ -17,6 +18,8 @@ private:
 public:
     static void render();
     static void dispose();
+    static void addLine(Line* line);
+    static void drawRay(Ray ray, glm::vec3 color);
 
     void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
     void drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color);

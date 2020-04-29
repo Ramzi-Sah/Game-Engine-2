@@ -1,5 +1,5 @@
-#ifndef SAH_SHADERLOADER
-#define SAH_SHADERLOADER
+#ifndef SAH_SHADER_LOADER
+#define SAH_SHADER_LOADER
 
 #include <iostream>
 #include <fstream>

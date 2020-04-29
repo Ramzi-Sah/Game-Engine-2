@@ -1,5 +1,5 @@
-#ifndef SAH_ASSETLOADER
-#define SAH_ASSETLOADER
+#ifndef SAH_ASSET_LOADER
+#define SAH_ASSET_LOADER
 
 #include "ShaderLoader.hpp"
 #include "TextureLoader.hpp"

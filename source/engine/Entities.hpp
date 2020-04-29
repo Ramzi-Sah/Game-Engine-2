@@ -9,6 +9,8 @@
 #include "../engine/Camera.hpp"
 #include "../config.hpp"
 
+#include "physics/DebugDrawer.hpp"
+
 class Entities {
 private:
     static Entity* hooveredEntity;

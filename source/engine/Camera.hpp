@@ -68,6 +68,8 @@ private:
     unsigned int texColorBuffer;
     unsigned int rbo;
 
+    static float raySize;
+
 public:
     // for projection
     static void setProjectionMatrix(unsigned int _windowWidth, unsigned int _windowHeight);

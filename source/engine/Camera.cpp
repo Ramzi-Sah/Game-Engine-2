@@ -66,8 +66,9 @@ void Camera::reClculateFrustum() {
 glm::vec4 Camera::frustumW[8];
 void Camera::clculateFrustumWorld() {
     // calculate view mat inverse
+    // FIXME: view matrix should not be recalculated
     // glm::mat4 viewMatInv = glm::inverse(usedCam->view);
-    glm::mat4 viewMatInv = glm::inverse(glm::lookAt(usedCam->position, usedCam->position - usedCam->front, usedCam->up)); // FIXME: view matrix should not be recalculated
+    glm::mat4 viewMatInv = glm::inverse(glm::lookAt(usedCam->position, usedCam->position - usedCam->front, usedCam->up));
 
     // calculate frustum in world space
     for (int i = 0; i < 8; i++) {
@@ -366,6 +367,7 @@ bool Camera::getAttached() {
 };
 
 //------------------------------------------------------------------------------
+float Camera::raySize = Config::Game::viewDistance;
 Ray Camera::rayCast(unsigned int screenX, unsigned int screenY) {
     // ray cast theory <3 http://antongerdelan.net/opengl/raycasting.html
 
@@ -384,7 +386,7 @@ Ray Camera::rayCast(unsigned int screenX, unsigned int screenY) {
     glm::vec4 rayWor = glm::inverse(usedCam->view) * rayEye;
 
     // ray direction
-    glm::vec3 rayDir = glm::normalize(glm::vec3(rayWor.x, rayWor.y, rayWor.z));
+    glm::vec3 rayEnd = usedCam->position + glm::normalize(glm::vec3(rayWor.x, rayWor.y, rayWor.z)) * raySize;
 
-    return Ray(usedCam->position, rayDir);
+    return Ray(usedCam->position, rayEnd);
 };

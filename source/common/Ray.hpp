@@ -11,10 +11,6 @@ struct Ray {
         position = _position;
         direction = _direction;
     };
-
-    void setSize(float size) {
-        direction = glm::vec3(direction.x * size, direction.y * size, direction.z * size);
-    };
 };
 
 #endif

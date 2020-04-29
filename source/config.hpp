@@ -21,21 +21,23 @@ namespace Config {
 
     namespace Player {
         static float speed = 20.0f;
-        static float speedRapidMult = 5.0f;
+        static float speedRapidMult = 3.0f;
     };
 
     namespace Keymap {
-        static unsigned int FORWARD = 87;
-        static unsigned int BACKWARD = 83;
-        static unsigned int LEFT = 65;
-        static unsigned int RIGHT = 68;
+        static unsigned int FORWARD = 87; // z key
+        static unsigned int BACKWARD = 83; // s key
+        static unsigned int LEFT = 65; // q key
+        static unsigned int RIGHT = 68; // d key
 
-        static unsigned int SPEED = 340;
+        static unsigned int SPEED = 340; // left shift key
+
+        static unsigned int BASCULATE_VIEW_MOD = 86; // v key
     };
 
     namespace Camera {
-        static float translationSpeed = 10.0f;
-        static float translationSpeedRapidMult = 5.0f;
+        static float translationSpeed = 30.0f;
+        static float translationSpeedRapidMult = 3.0f;
         static float rotationSensitivity = 0.05f;
 
         static float near = 0.1f;
