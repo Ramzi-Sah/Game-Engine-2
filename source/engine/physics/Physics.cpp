@@ -115,10 +115,7 @@ btRigidBody* Physics::addBox(btVector3 size, float mass, btVector3 pos) {
 };
 
 //------------------------------------------------------------------------------
-btRigidBody* Physics::rayCollisionCheck(unsigned int screenX, unsigned int screenY){
-    // screen pos to ray
-    Ray ray = Camera::rayCast(screenX, screenY);
-    ray.setSize(10000);
+btRigidBody* Physics::rayCollisionCheck(Ray ray){
     // std::cout << "rayPos: " << ray.position.x << " " << ray.position.y << " " << ray.position.z << " | rayDir: "<< ray.direction.x << " " << ray.direction.y << " " << ray.direction.z << '\n';
 
     // physics rayCallBack

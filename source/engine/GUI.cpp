@@ -82,7 +82,7 @@ void GUI::update(float deltaTime) {
         ImGui::SetNextWindowBgAlpha(0.35f); // Transparent background
         ImGui::Begin("debug overlay", NULL, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav);
 
-        // ImGui::Text("SAH Engine v0.02");
+        ImGui::Text("SAH Engine V%.2f", Config::Window::version);
         // ImGui::Separator();
         ImGui::Text("FPS: %i (%.2f ms)", FPS, deltaTime*1000);
         ImGui::Text("Number of Entities: %u", nbrEntities);
@@ -239,6 +239,15 @@ void GUI::update(float deltaTime) {
             };
             ImGui::Combo("Shader", &shader_current, shaders, shaders_i);
             selectedEntity->model->setMainShaderProgram(ShaderLoader::getShader(shaders[shader_current]));
+
+            // attach camera
+            if (!selectedEntity->cameraAttached){
+                if (ImGui::Button("Attach camera"))
+                    Camera::getUsedCam()->attachCurentToEntity(selectedEntity);
+            } else {
+                if (ImGui::Button("Detach camera"))
+                    Camera::getUsedCam()->detach();
+            }
         };
 
         lastSelectedEntity = selectedEntity;

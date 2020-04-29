@@ -99,9 +99,10 @@ void Display::framebuffer_size_callback(GLFWwindow* window, int width, int heigh
 void Display::key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     // std::cout << "key: " << key << " | action:" << action<< '\n';
 
-    // Camera input
+    // handle input
     Camera::key_callback(key, action);
     Entities::key_callback(key, action);
+    Player::key_callback(key, action);
 
     // escape
     if (action == 1) {
@@ -122,23 +123,21 @@ void Display::key_callback(GLFWwindow* window, int key, int scancode, int action
         if (key == 290) {
             GUI::show_demo_window = !GUI::show_demo_window;
         };
-    };
-    // F2
-    if (action == 1) {
+        // F2
         if (key == 291) {
             debug::f2Pressed();
         };
-    };
-    // F3
-    if (action == 1) {
+        // F3
         if (key == 292) {
             debug::renderCameraFrustum();
         };
-    };
-    // F4
-    if (action == 1) {
+        // F4
         if (key == 293) {
             debug::f4Pressed();
+        };
+        // F5
+        if (key == 294) {
+            debug::f5Pressed();
         };
     };
 };
@@ -157,6 +156,7 @@ void Display::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
     // handle entities mouse moved event
     Entities::mouse_callback(mouseDisabled, mouseXPos, mouseYPos);
+    Player::mouse_callback(mouseDisabled, mouseXPos, mouseYPos);
 };
 
 void Display::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {

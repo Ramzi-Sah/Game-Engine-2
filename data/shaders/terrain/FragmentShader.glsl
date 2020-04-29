@@ -77,18 +77,18 @@ float shadowCalculation(vec4 fragPosLightSpace) {
 };
 
 // for fog
-uniform float u_near;
-uniform float u_far;
+uniform float u_fogMaxDist;
+uniform float u_fogMinDist;
 uniform vec3 u_fogColor;
-float LinearizeDepth(float depth) {
-    float z = depth * 2.0 - 1.0; // back to NDC
-    return (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near)) / u_far;
+float LinearizeDepth(vec3 fragmentPos) {
+    // https://opengl-notes.readthedocs.io/en/latest/topics/texturing/aliasing.html#fog
+    float fog_factor = (u_fogMaxDist - length(fragmentPos)) / (u_fogMaxDist - u_fogMinDist);
+    return clamp(fog_factor, 0.0f, 1.0f);
 };
 
 vec3 ambient_tmp, diffuse_tmp, specular_tmp;
 float gradCoeficient;
 void main() {
-
     // shadow calculations
     float shadow = shadowCalculation(v_posLightSpace);
 
@@ -140,6 +140,6 @@ void main() {
     FragColor += vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
 
     // mix with  fog
-    FragColor = mix(FragColor, vec4(u_fogColor, 1.0f), LinearizeDepth(gl_FragCoord.z));
+    FragColor = mix(vec4(u_fogColor, 1.0f), FragColor, LinearizeDepth(u_viewPos - v_pos));
 // */
 };

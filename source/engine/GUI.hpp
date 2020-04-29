@@ -6,6 +6,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include "Entity.hpp"
+#include "Camera.hpp"
 #include "assets/AssetLoader.hpp"
 
 class GUI {

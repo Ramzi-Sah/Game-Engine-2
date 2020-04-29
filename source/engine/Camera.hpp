@@ -10,20 +10,8 @@
 #include "../config.hpp"
 #include "assets/AssetLoader.hpp"
 #include "../common/Geometry.hpp"
-
-struct Ray {
-    glm::vec3 position;
-    glm::vec3 direction;
-
-    Ray(glm::vec3 _position, glm::vec3 _direction) {
-        position = _position;
-        direction = _direction;
-    };
-
-    void setSize(float size) {
-        direction = glm::vec3(direction.x * size, direction.y * size, direction.z * size);
-    };
-};
+#include "../common/Ray.hpp"
+#include "Entity.hpp"
 
 class Camera {
 private:
@@ -56,7 +44,7 @@ private:
     /// for transfomation
     static float translationSpeed;
 
-    glm::vec3 position = glm::vec3(0.0f, 2.0f, -5.0f);
+    glm::vec3 position = glm::vec3(10.0f, 10.0f, 10.0f);
     glm::vec3 front = glm::vec3(0.0f, 0.0f, 1.0f);
     glm::vec3 up = glm::vec3(0.0f, 1.0f,  0.0f);
 
@@ -71,6 +59,10 @@ private:
 
     static bool disabledMouse;
 
+    // for attach
+    bool attached = false;
+    Entity* attachedEntity = nullptr;
+
     // frame render
     unsigned int fbo;
     unsigned int texColorBuffer;
@@ -81,10 +73,10 @@ public:
     static void setProjectionMatrix(unsigned int _windowWidth, unsigned int _windowHeight);
     static glm::vec4* getFrustumWorld();
 
-
     // for camera view matrix
     Camera();
     ~Camera();
+    static Camera* getUsedCam();
 
     // set as used cam
     void use();
@@ -94,7 +86,8 @@ public:
     void translate(glm::vec3 _position);
     void updateTransform();
     static glm::vec3 getPos();
-    static glm::vec3 getDir();
+    static glm::vec3 getFront();
+    static float getYaw();
 
     // handle input
     static bool input_forward;
@@ -106,6 +99,12 @@ public:
     static void inputUpdate(float deltaTime);
     static bool resetMouse;
     static void mouseDisable(bool disable);
+
+    // for attach
+    void attachCurentToEntity(Entity* entity);
+    void setTransformCurrentAttached();
+    void detach();
+    bool getAttached();
 
     // ray cast
     static Ray rayCast(unsigned int screenX, unsigned int screenY);

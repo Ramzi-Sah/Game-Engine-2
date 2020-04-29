@@ -1,5 +1,5 @@
 #ifndef SAH_BIOMS
-#define BIOMS
+#define SAH_BIOMS
 
 #include "../../config.hpp"
 #include "../../common/PerlinNoise.hpp"

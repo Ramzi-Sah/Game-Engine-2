@@ -23,26 +23,28 @@ struct Material {
 uniform Material u_material;
 
 // for fog
-uniform float u_near;
-uniform float u_far;
+uniform float u_fogMaxDist;
+uniform float u_fogMinDist;
 uniform vec3 u_fogColor;
-float LinearizeDepth(float depth) {
-    float z = depth * 2.0 - 1.0; // back to NDC
-    return (2.0 * u_near * u_far) / (u_far + u_near - z * (u_far - u_near)) / u_far;
+uniform vec3 u_viewPos;
+float LinearizeDepth(vec3 fragmentPos) {
+    // https://opengl-notes.readthedocs.io/en/latest/topics/texturing/aliasing.html#fog
+    float fog_factor = (u_fogMaxDist - length(fragmentPos)) / (u_fogMaxDist - u_fogMinDist);
+    return clamp(fog_factor, 0.0f, 1.0f);
 };
 
 uniform float u_uvOffset;
-uniform float u_colorOffset;
 void main() {
     FragColor = texture(u_material.diffuseMap, v_uv + u_uvOffset);
+    // FragColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
 
     vec3 color = vec3(
-        sin(u_colorOffset + v_uv.x + v_uv.y),
-        sin(u_colorOffset + 3.141592 * 1/3 + v_uv.x + v_uv.y),
-        sin(u_colorOffset + 3.141592 * 2/3 + v_uv.x + v_uv.y)
+        sin(u_uvOffset + v_uv.x + v_uv.y),
+        sin(u_uvOffset + 3.141592 * 1/3 + v_uv.x + v_uv.y),
+        sin(u_uvOffset + 3.141592 * 2/3 + v_uv.x + v_uv.y)
     );
     FragColor *= vec4(color, 1.0f);
 
     // mix with  fog
-    FragColor = mix(FragColor, vec4(u_fogColor, 1.0f), LinearizeDepth(gl_FragCoord.z));
+    FragColor = mix(vec4(u_fogColor, 1.0f), FragColor, LinearizeDepth(u_viewPos - v_pos));
 };

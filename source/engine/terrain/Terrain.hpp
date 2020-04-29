@@ -2,6 +2,7 @@
 #define SAH_TERRAIN
 
 #include "TerrainChunk.hpp"
+#include "../Entities.hpp"
 #include "../GUI.hpp"
 
 class Terrain {

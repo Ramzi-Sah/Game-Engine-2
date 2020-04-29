@@ -23,18 +23,14 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
         islandTerrainChunks.push_back(std::vector<TerrainChunk*>());
         for (int j = 0; j < islandGridSize; j++) {
             islandTerrainChunks[i].push_back(nullptr);
-
-            islandTerrainChunks[i][j] = new TerrainChunk(
-                i,
-                j,
-                false
-            );
+            islandTerrainChunks[i][j] = new TerrainChunk(i, j, false);
 
             // loading menu
             creationStatus++;
             GUI::LoadingMenu("Generating island Chunks: ", creationStatus, pow(islandGridSize, 2));
         };
     };
+    // std::cout << "island generated." << std::endl;
 
     // generate flat terrain
     flatChunk = new TerrainChunk(0, 0, true);
@@ -43,12 +39,15 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
     terrainPosX = posToGrid(posX);
     terrainPosZ = posToGrid(posZ);
 
+    // std::cout << "terrainPosX: " << terrainPosX << '\n';
+    // std::cout << "terrainPosZ: " << terrainPosZ << '\n';
+
     for (int i = 0; i < chunksViewDistance; i++) {
         terrainChunks.push_back(std::vector<TerrainChunk*>());
         for (int j = 0; j < chunksViewDistance; j++) {
             terrainChunks[i].push_back(nullptr);
             if (i + terrainPosX - offset >= 0 && i + terrainPosX - offset < islandGridSize && j + terrainPosZ - offset >= 0 && j + terrainPosZ - offset < islandGridSize) {
-                terrainChunks[i][j] = new TerrainChunk(islandTerrainChunks[i + terrainPosX - offset][j - 1 + terrainPosX - offset]);
+                terrainChunks[i][j] = new TerrainChunk(islandTerrainChunks[i + terrainPosX - offset][j + terrainPosX - offset]);
             } else {
                 terrainChunks[i][j] = new TerrainChunk(flatChunk);
                 terrainChunks[i][j]->setPosGrid(i + terrainPosX - offset, j + terrainPosZ - offset);
@@ -164,6 +163,39 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
     glActiveTexture(GL_TEXTURE7);
     glBindTexture(GL_TEXTURE_2D, TextureLoader::getTexture("white"));
 
+    //--------------------------------------------------------------------------
+    // generate some entities
+	// trees
+	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 0.25f; i++) {
+		Model* tree = new Model(ModelLoader::getModel("tree"));
+		tree->setScale(glm::vec3(1.5f, 1.5f, 1.5f));
+		tree->updateTransform();
+		float posX = rand() % int(Config::Terrain::islandSize);
+		float posZ = rand() % int(Config::Terrain::islandSize);
+		PhysicsEntity* treeBody = new PhysicsEntity_Box(btVector3(1.0f, 5.0f, 1.0f), 0.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
+        Entity* treeEnt = new Entity(tree, treeBody);
+		treeEnt->setRot(glm::quat(glm::radians(float(rand() % 360)), glm::vec3(0.0f, 1.0f, 0.0f)));
+        treeEnt->setStaticFlag(true);
+        treeEnt->cameraOffsetPos = glm::vec3(0.0f, 7.5f, 0.0f);
+		Entities::addEntity(treeEnt);
+	};
+
+	// grass
+	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 1.0f; i++) {
+		Model* grass = new Model(ModelLoader::getModel("grass"));
+		grass->setMainShaderProgram(ShaderLoader::getShader("Grass"));
+		grass->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture("grassModelDefuse");
+		grass->faceCulled = false;
+		grass->castShadow = false;
+		float posX = rand() % int(Config::Terrain::islandSize);
+		float posZ = rand() % int(Config::Terrain::islandSize);
+		PhysicsEntity* grassBody = new PhysicsEntity_Box(btVector3(0.0f, 0.0f, 0.0f), 0.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
+		Entity* grassEnt = new Entity(grass, grassBody);
+		grassEnt->setRot(glm::quat(glm::radians(float(rand() % 360)), glm::vec3(0.0f, 1.0f, 0.0f)));
+        grassEnt->setStaticFlag(true);
+		Entities::addEntity(grassEnt);
+	};
+
 };
 void Terrain::dispose() {
     // dispose terrain chunks
@@ -196,16 +228,7 @@ void Terrain::render() {
         glGetUniformLocation(ShaderLoader::getShader("Border"), "u_uvOffset"),
         uvOffset
     );
-    glUniform1f(
-        glGetUniformLocation(ShaderLoader::getShader("Border"), "u_colorOffset"),
-        glfwGetTime()
-    );
-    // set color
-    // glm::vec3 borderColor = glm::vec3(
-    //     sin(glfwGetTime()),
-    //     sin(glfwGetTime() + M_PI * 1/3),
-    //     sin(glfwGetTime() + M_PI * 2/3)
-    // );
+
     for (int i = 0; i < terrainBorders.size(); i++) {
         // terrainBorders[i]->meshGroups[0]->material.ambient = borderColor;
         terrainBorders[i]->render();

@@ -21,7 +21,8 @@
 #include "engine/GUI.hpp"
 #include "engine/Light.hpp"
 #include "engine/terrain/Terrain.hpp"
-#include "logic/Entities.hpp"
+#include "engine/Entities.hpp"
+#include "engine/Player.hpp"
 
 // mesh generation
 Model* createPlane();
@@ -38,7 +39,7 @@ namespace debug {
 		// deleteDebugEntities();
 		// createCubes(nbrCubes);
 
-		shootShpere(Camera::getPos(), Camera::getDir());
+		shootShpere(Camera::getPos(), Camera::getFront());
 	};
 	void f2Pressed() {
 		Physics::debugDraw();
@@ -89,6 +90,13 @@ namespace debug {
 		Physics::debugDraw();
 		PhysicsDebugDrawer::dispose();
 	};
+	void f5Pressed() {
+		if (Camera::getUsedCam()->getAttached()) {
+			Camera::getUsedCam()->detach();
+		} else {
+			Camera::getUsedCam()->attachCurentToEntity(Player::getEntity());
+		};
+	};
 };
 
 // render
@@ -102,6 +110,7 @@ float currentFrame = 0.0f; // temp Time of frame
 
 int main() {
 	std::cout << "SAH game V" << Config::Window::version << '\n';
+
 	// init window
 	Display display(Config::Window::title, Config::Window::width, Config::Window::height);
 
@@ -111,64 +120,32 @@ int main() {
 	// load assets
 	AssetLoader::init();
 
-	// main menu thread
-	// while (GUI::show_main_menu) {
-	// 	GUI::mainMenu();
-	//
-	// 	// swap openGL buffers
-    // 	glfwSwapBuffers(display.window);
-	//
-	// 	// handle glfw events
-    //     glfwPollEvents();
-	// };
-
-	// set light
+	// init light and shadow maping
 	Light::setAmbientLight(glm::vec3(0.5f, 0.5f, 0.75f));
 	Light::createDirectionalLight(glm::vec3(-4.0f, 6.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	Light::initShadowMap();
 	Light::initFog();
+	Light::initShadowMap();
 
 	//--------------------------------------------------------------------------
 	Physics::init();
 
-	//--------------------------------------------------------------------------
 	// init camera
     Camera::setProjectionMatrix(Config::Window::width, Config::Window::height);
 	Camera freeCam = Camera();
 	freeCam.use();
 
-	//--------------------------------------------------------------------------
+	// init player
+	Player::init(glm::vec3(200.0f, 3.0f, 200.0f));
+
+	// attach camera to player entity
+	Camera::getUsedCam()->attachCurentToEntity(Player::getEntity());
+
 	// init terrain
 	glm::vec3 cameraPos = Camera::getPos();
 	Terrain::create(cameraPos.x, cameraPos.z, display.window);
-/*
-	// glfwMakeContextCurrent(NULL);
-	// std::thread createTerrain_thread(Terrain::create, cameraPos.x, cameraPos.z, display.window);
-	while (Terrain::creationStatus < 100.0f) {
-		// glfwMakeContextCurrent(NULL);
-		// glfwMakeContextCurrent(display.window);
-		// std::cout << "from thread: " << Terrain::creationStatus << '\n';
-
-    	// update GUI
-        glClearColor(0.661f, 0.720f, 0.959f, 1.00f);
-    	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	GUI::update(0.0f);
-
-		// swap openGL buffers
-    	glfwSwapBuffers(display.window);
-
-		// handle glfw events
-        glfwPollEvents();
-	};
-	// createTerrain_thread.join();
-	// glfwMakeContextCurrent(display.window);
-*/
 
 	//--------------------------------------------------------------------------
-	// create some debugEntities
-	// createCubes(nbrCubes);
-
-	// center of the world
+	// frame for debuging
 	Model* frameQuad = createPlane();
 	frameQuad->setMainShaderProgram(ShaderLoader::getShader("ScreenQuad"));
 
@@ -179,40 +156,8 @@ int main() {
     centerEnt->setStaticFlag(true);
 	Entities::addEntity(centerEnt);
 
-	// trees
-	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 0.25f; i++) {
-		Model* tree = new Model(ModelLoader::getModel("tree"));
-		tree->setScale(glm::vec3(1.5f, 1.5f, 1.5f));
-		tree->updateTransform();
-		float posX = rand() % int(Config::Terrain::islandSize);
-		float posZ = rand() % int(Config::Terrain::islandSize);
-		PhysicsEntity* treeBody = new PhysicsEntity_Box(btVector3(1.0f, 5.0f, 1.0f), 0.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
-        Entity* treeEnt = new Entity(tree, treeBody);
-		treeEnt->setRot(glm::quat(glm::radians(float(rand() % 360)), glm::vec3(0.0f, 1.0f, 0.0f)));
-        treeEnt->setStaticFlag(true);
-		Entities::addEntity(treeEnt);
-	};
-
-	// grass
-	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 1.0f; i++) {
-		Model* grass = new Model(ModelLoader::getModel("grass"));
-		grass->setMainShaderProgram(ShaderLoader::getShader("Grass"));
-		grass->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture("grassModelDefuse");
-		grass->faceCulled = false;
-		grass->castShadow = false;
-		float posX = rand() % int(Config::Terrain::islandSize);
-		float posZ = rand() % int(Config::Terrain::islandSize);
-		PhysicsEntity* grassBody = new PhysicsEntity_Box(btVector3(0.0f, 0.0f, 0.0f), 0.0f, btVector3(posX, Bioms::getHight(posX, posZ), posZ));
-		Entity* grassEnt = new Entity(grass, grassBody);
-		grassEnt->setRot(glm::quat(glm::radians(float(rand() % 360)), glm::vec3(0.0f, 1.0f, 0.0f)));
-        grassEnt->setStaticFlag(true);
-		Entities::addEntity(grassEnt);
-	};
-
-    // charachter
-    Model* characther = new Model(ModelLoader::getModel("player"));
-    PhysicsEntity* charBody = new PhysicsEntity_Box(btVector3(1.0f, 2.8f, 1.0f), 30.0f, btVector3(20.0f, 5.0f, 20.0f));
-    Entities::addEntity(new Entity(characther, charBody));
+	// create some debugEntities
+	// createCubes(nbrCubes);
 
 	// test cube
 	Model* cube = new Model(ModelLoader::getModel("cube"));
@@ -238,15 +183,18 @@ int main() {
 		// debug::spaceBarPressed();
 
 		//-----------------------------------------------------------------------
-		//---------------- update inputs ------------------
-		// camera movement
-		Camera::inputUpdate(deltaTime);
-		cameraPos = Camera::getPos();
-
 		//---------------- update physics ------------------
 		// update physics simulation
 		// Debug(Physics::update(deltaTime))
 		Physics::update(deltaTime);
+
+		//---------------- update inputs ------------------
+		// update player
+		Player::update(deltaTime);
+
+		// camera movement
+		Camera::inputUpdate(deltaTime); // need to be after attached entity (player) => causes weired artifacts
+		cameraPos = Camera::getPos();
 
 		// update terrain
 		// Debug(Terrain::update(cameraPos.x, cameraPos.z))
@@ -323,6 +271,9 @@ void renderScean() {
 
 	// render entities
 	Entities::render();
+
+	// render player
+	Player::render();
 };
 void renderSceanShadow() {
 	glEnable(GL_DEPTH_TEST);
@@ -340,6 +291,9 @@ void renderSceanShadow() {
 
 	// render entities
 	Entities::renderShadows();
+
+	// render player
+	Player::renderShadow();
 };
 
 //-----------------------------------------------------------------------------
@@ -505,11 +459,12 @@ void shootShpere(glm::vec3 pos, glm::vec3 dir) {
 
 	model->setPos(pos);
 
+	static float scale = 0.4f;
 	model->setScale(
 		glm::vec3(
-			0.5f,
-			0.5f,
-			0.5f
+			scale,
+			scale,
+			scale
 		)
 	);
 	model->updateTransform();
@@ -518,7 +473,7 @@ void shootShpere(glm::vec3 pos, glm::vec3 dir) {
 	// model->setShaderProgram(ShaderLoader::getShader("Select"));
 
 	// init physics
-	PhysicsEntity* body = new PhysicsEntity_Sphere(0.5f, 5.0f, btVector3(pos.x, pos.y, pos.z));
+	PhysicsEntity* body = new PhysicsEntity_Sphere(scale, 5.0f, btVector3(pos.x, pos.y, pos.z));
 
 	// apply force
 	dir *= 350.0f;

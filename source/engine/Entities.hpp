@@ -6,6 +6,8 @@
 #include "../common/Geometry.hpp"
 #include "../engine/Entity.hpp"
 #include "../engine/GUI.hpp"
+#include "../engine/Camera.hpp"
+#include "../config.hpp"
 
 class Entities {
 private:

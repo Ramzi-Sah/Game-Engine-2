@@ -9,13 +9,15 @@
 
 #include "Camera.hpp"
 #include "GUI.hpp"
-#include "../logic/Entities.hpp"
+#include "Entities.hpp"
+#include "Player.hpp"
 
 namespace debug {
 	void spaceBarPressed();
 	void f2Pressed();
 	void f4Pressed();
 	void renderCameraFrustum();
+	void f5Pressed();
 };
 
 class Display {

@@ -58,6 +58,12 @@ void Entity::setPos(glm::vec3 _position) {
     // reset kinematic status
     setKinematic(kinematicTemp);
 };
+void Entity::setKinematicPos(glm::vec3 _position) {
+    // set pos
+    transform.setOrigin(btVector3(_position.x, _position.y, _position.z));
+    pysicsEntity->rigidBody->setCenterOfMassTransform(transform);
+    pysicsEntity->rigidBody->getMotionState()->setWorldTransform(transform);
+};
 glm::vec3 Entity::getPos() {
     btVector3 pos = pysicsEntity->rigidBody->getWorldTransform().getOrigin();
     // btVector3 pos = transform.getOrigin();
@@ -79,6 +85,12 @@ void Entity::setRot(glm::quat _rotation) {
 
     // reset kinematic status
     setKinematic(kinematicTemp);
+};
+void Entity::setKinematicRot(glm::quat _rotation) {
+    // set pos
+    transform.setRotation(btQuaternion(_rotation.x, _rotation.y, _rotation.z, _rotation.w));
+    pysicsEntity->rigidBody->setCenterOfMassTransform(transform);
+    pysicsEntity->rigidBody->getMotionState()->setWorldTransform(transform);
 };
 glm::quat Entity::getRot() {
     btQuaternion rot = transform.getRotation();

@@ -5,9 +5,8 @@
 #include <btBulletDynamicsCommon.h>
 
 #include "DebugDrawer.hpp"
-#include "../Camera.hpp"
 #include "../Model.hpp"
-
+#include "../../common/Ray.hpp"
 
 class Physics {
 private:
@@ -29,7 +28,7 @@ public:
     static btRigidBody* addSphere(float radius, float mass, btVector3 pos);
     static btRigidBody* addBox(btVector3 size, float mass, btVector3 pos);
 
-    static btRigidBody* rayCollisionCheck(unsigned int screenX, unsigned int screenY);
+    static btRigidBody* rayCollisionCheck(Ray ray);
 };
 
 class PhysicsEntity {

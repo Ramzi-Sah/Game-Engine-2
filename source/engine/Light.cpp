@@ -56,13 +56,13 @@ void Light::initFog() {
         glUseProgram(it->second);
 
         glUniform1f(
-            glGetUniformLocation(it->second, "u_near"),
-            0.01f
+            glGetUniformLocation(it->second, "u_fogMinDist"),
+            Config::Game::viewDistance - 100.0f - Config::Game::fogThikness // 100.0f safezone perevent far plane ugly cut
         );
 
         glUniform1f(
-            glGetUniformLocation(it->second, "u_far"),
-            Config::Game::viewDistance
+            glGetUniformLocation(it->second, "u_fogMaxDist"),
+            Config::Game::viewDistance - 100.0f // 100.0f safezone perevent far plane ugly cut
         );
 
         glUniform3f(

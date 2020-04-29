@@ -3,7 +3,7 @@
 //------------------------------------------------------------------------------
 // projection
 glm::mat4 Camera::projection = glm::mat4(1.0f);
-float Camera::nearPlane = 0.1f;
+float Camera::nearPlane = Config::Camera::near;
 float Camera::farPlane = Config::Game::viewDistance - Config::Terrain::chunksNbrTiles * sqrt(2); // phytaghore's law
 float Camera::fov = 45.0f;
 
@@ -118,6 +118,9 @@ void Camera::setViewPosUniform() {
         );
     };
 };
+Camera* Camera::getUsedCam() {
+    return usedCam;
+};
 
 Camera::Camera() {
     // generate camera's frame buffer
@@ -192,8 +195,11 @@ void Camera::setPos(glm::vec3 _position) {
 glm::vec3 Camera::getPos() {
     return usedCam->position;
 };
-glm::vec3 Camera::getDir() {
+glm::vec3 Camera::getFront() {
     return usedCam->front;
+};
+float Camera::getYaw() {
+    return usedCam->yaw;
 };
 void Camera::translate(glm::vec3 _position) {
     // set position
@@ -229,6 +235,7 @@ void Camera::key_callback(int key, int action) {
             input_left = true;
         };
 
+        // TODO: should not modify config
         if (key == Config::Keymap::SPEED) {
             Config::Camera::translationSpeed *= Config::Camera::translationSpeedRapidMult;
         };
@@ -246,6 +253,7 @@ void Camera::key_callback(int key, int action) {
             input_left = false;
         };
 
+        // TODO: should not modify config
         if (key == Config::Keymap::SPEED) {
             Config::Camera::translationSpeed /= Config::Camera::translationSpeedRapidMult;
         };
@@ -253,35 +261,39 @@ void Camera::key_callback(int key, int action) {
 };
 float Camera::translationSpeed;
 void Camera::inputUpdate(float deltaTime) {
-    // check if mouse can move
-    if (disabledMouse)
-        return;
-
     // recalculate frustum world space
     clculateFrustumWorld();
 
-    // calcultae mouse translation speed
-    translationSpeed = Config::Camera::translationSpeed * deltaTime;
+    if (usedCam->attached) {
+        // transform camera to attached entity
+        usedCam->setTransformCurrentAttached();
+    } else {
+        // check if mouse can move
+        if (disabledMouse)
+            return;
 
-    // move camera
-    if (input_forward) {
-        usedCam->translate(usedCam->front * translationSpeed);
-        usedCam->updateTransform();
-    };
-    if (input_backward) {
-        usedCam->translate(-usedCam->front * translationSpeed);
-        usedCam->updateTransform();
-    };
-    if (input_right) {
-        usedCam->translate(glm::normalize(glm::cross(usedCam->front, usedCam->up)) * translationSpeed);
-        usedCam->updateTransform();
-    };
-    if (input_left) {
-        usedCam->translate(-glm::normalize(glm::cross(usedCam->front, usedCam->up)) * translationSpeed);
-        usedCam->updateTransform();
+        // calcultae mouse translation speed
+        translationSpeed = Config::Camera::translationSpeed * deltaTime;
+
+        // move camera
+        if (input_forward) {
+            usedCam->translate(usedCam->front * translationSpeed);
+            usedCam->updateTransform();
+        };
+        if (input_backward) {
+            usedCam->translate(-usedCam->front * translationSpeed);
+            usedCam->updateTransform();
+        };
+        if (input_right) {
+            usedCam->translate(glm::normalize(glm::cross(usedCam->front, usedCam->up)) * translationSpeed);
+            usedCam->updateTransform();
+        };
+        if (input_left) {
+            usedCam->translate(-glm::normalize(glm::cross(usedCam->front, usedCam->up)) * translationSpeed);
+            usedCam->updateTransform();
+        };
     };
 };
-
 
 float Camera::lastX = Config::Window::width / 2;
 float Camera::lastY = Config::Window::height / 2;
@@ -308,8 +320,7 @@ void Camera::mouse_callback(float posX, float posY) {
     if (usedCam->pitch < -89.0f)
         usedCam->pitch = -89.0f;
 
-    usedCam->front = Geometry::polarToCartezian(1.0f, usedCam->yaw, usedCam->pitch);
-    usedCam->front = glm::normalize(usedCam->front);
+    usedCam->front = glm::normalize(Geometry::polarToCartezian(1.0f, usedCam->yaw, usedCam->pitch));
 
     usedCam->updateTransform();
 };
@@ -319,6 +330,39 @@ void Camera::mouseDisable(bool disable) {
 
     if (!disable)
         resetMouse = true;
+};
+
+// for attach
+void Camera::attachCurentToEntity(Entity* entity) {
+    // set detached flag on last entity
+    if (attachedEntity != nullptr)
+        attachedEntity->cameraAttached = false;
+
+    // set new attached entity
+    attachedEntity = entity;
+    attached = true;
+
+    // set atached flag on new entity
+    attachedEntity->cameraAttached = true;
+
+    // transform camera to attached entity
+    Camera::setTransformCurrentAttached();
+};
+void Camera::setTransformCurrentAttached() {
+    setPos(attachedEntity->getPos() - Geometry::polarToCartezian(usedCam->attachedEntity->cameraDistance, usedCam->yaw, usedCam->pitch) + usedCam->attachedEntity->cameraOffsetPos);
+    updateTransform();
+};
+void Camera::detach() {
+    // set detached flag on last entity
+    if (attachedEntity != nullptr)
+        attachedEntity->cameraAttached = false;
+
+    // clear attached params
+    attachedEntity = nullptr;
+    attached = false;
+};
+bool Camera::getAttached() {
+    return attached;
 };
 
 //------------------------------------------------------------------------------
