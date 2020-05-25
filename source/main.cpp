@@ -36,9 +36,12 @@ void shootShpere(glm::vec3 pos, glm::vec3 dir);
 void deleteDebugEntities();
 namespace debug {
 	void spaceBarPressed() {
-		// deleteDebugEntities();
-		// createCubes(nbrCubes);
+		deleteDebugEntities();
+		createCubes(nbrCubes);
 
+		// shootShpere(Camera::getPos(), Camera::getFront());
+	};
+	void shoot() {
 		shootShpere(Camera::getPos(), Camera::getFront());
 	};
 	void f2Pressed() {
@@ -87,7 +90,6 @@ namespace debug {
 	void f4Pressed() {
 		deleteDebugEntities();
 		Entities::disposeEntity(frustumEnt);
-		Physics::debugDraw();
 		PhysicsDebugDrawer::dispose();
 	};
 	void f5Pressed() {
@@ -109,7 +111,7 @@ float lastFrame = 0.0f; // Time of last frame
 float currentFrame = 0.0f; // temp Time of frame
 
 int main() {
-	std::cout << "SAH game V" << Config::Window::version << '\n';
+	std::cout << "Sah Engine V" << Config::Window::version << '\n';
 
 	// init window
 	Display display(Config::Window::title, Config::Window::width, Config::Window::height);
@@ -121,9 +123,8 @@ int main() {
 	AssetLoader::init();
 
 	// init light and shadow maping
-	Light::setAmbientLight(glm::vec3(0.5f, 0.5f, 0.75f));
-	Light::createDirectionalLight(glm::vec3(-4.0f, 6.0f, -5.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-	Light::initFog();
+	Light::updateLightingConfig();
+	Light::setFog();
 	Light::initShadowMap();
 
 	//--------------------------------------------------------------------------
@@ -131,8 +132,8 @@ int main() {
 
 	// init camera
     Camera::setProjectionMatrix(Config::Window::width, Config::Window::height);
-	Camera freeCam = Camera();
-	freeCam.use();
+	Camera cam = Camera();
+	cam.use();
 
 	// init player
 	Player::init(glm::vec3(200.0f, 3.0f, 200.0f));
@@ -165,9 +166,9 @@ int main() {
 	cube->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture("containerDefuse");
 	cube->meshGroups[0]->material.specularMap = TextureLoader::getTexture("containerSpecular");
 	// cube->meshGroups[0]->material.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-	// cube->meshGroups[0]->material.diffuseMap = freeCam.getFrameTexture();
-	// cube->meshGroups[0]->material.specularMap = freeCam.getFrameTexture();
-	PhysicsEntity* cubeBody = new PhysicsEntity_Box(btVector3(1.0f, 1.0f, 1.0f), 50.0f, btVector3(5.0f, 1.0f, 10.0f));
+	// cube->meshGroups[0]->material.diffuseMap = cam.getFrameTexture();
+	// cube->meshGroups[0]->material.specularMap = cam.getFrameTexture();
+	PhysicsEntity* cubeBody = new PhysicsEntity_Box(btVector3(1.0f, 1.0f, 1.0f), 5.0f, btVector3(5.0f, 1.0f, 10.0f));
 	Entities::addEntity(new Entity(cube, cubeBody));
 
     //----------------------------------------------------------------------------
@@ -188,6 +189,10 @@ int main() {
 		// Debug(Physics::update(deltaTime))
 		Physics::update(deltaTime);
 
+		// TODO: remove for more performence
+		Physics::debugDraw();
+		// Debug(Physics::debugDraw())
+
 		//---------------- update inputs ------------------
 		// update player
 		Player::update(deltaTime);
@@ -197,12 +202,12 @@ int main() {
 		cameraPos = Camera::getPos();
 
 		// update terrain
+		Terrain::update(cameraPos.x, cameraPos.z);
 		// Debug(Terrain::update(cameraPos.x, cameraPos.z))
-        Terrain::update(cameraPos.x, cameraPos.z);
 
 		// update entities
-		// Debug(Entities::update(cameraPos))
 		Entities::update(cameraPos);
+		// Debug(Entities::update(cameraPos))
 
 		//------------------------- render --------------------------------------
 		//-----------------------------------------------------------------------
@@ -215,18 +220,19 @@ int main() {
 
 		// render scean
 		renderSceanShadow();
+		// Debug(renderSceanShadow())
 
 		// set shadowmap uniform
 		Light::setShadowMapUniform();
-/*
-		//----------------------------------------------------------------------
-		// camera frame buffer
-		glBindFramebuffer(GL_FRAMEBUFFER, freeCam.getFrameBuffer());
-		glViewport(0, 0, Display::windowWidth, Display::windowHeight);
 
-		// render scean
-		renderScean();
-*/
+		// -----------------------------------------------------------------------
+		// camera frame buffer
+		// glBindFramebuffer(GL_FRAMEBUFFER, cam.getFrameBuffer());
+		// glViewport(0, 0, Display::windowWidth, Display::windowHeight);
+		//
+		// // render scean
+		// renderScean();
+
 		// -----------------------------------------------------------------------
 		// reset main buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -235,15 +241,15 @@ int main() {
 		renderScean();
 		// Debug(renderScean())
 
+		//----------------------------------------------------------------------
 		// draw frame quad
-		// frameQuad->renderFrame(freeCam.getFrameTexture());
+		// frameQuad->renderFrame(cam.getFrameTexture());
 		// frameQuad->renderFrame(Light::getDepthMap());
 
+		//-----------------------------------------------------------------------
 		// update GUI
 		GUI::update(deltaTime);
 
-		//-----------------------------------------------------------------------
-		//-----------------------------------------------------------------------
 		// swap openGL buffers
     	glfwSwapBuffers(display.window);
 
@@ -260,7 +266,8 @@ int main() {
 };
 void renderScean() {
 	// clear openGL back buffer
-	glClearColor(Config::Game::fogColor.x, Config::Game::fogColor.y, Config::Game::fogColor.z, 1.00f);
+	// glClearColor(Config::Game::fogColor.x, Config::Game::fogColor.y, Config::Game::fogColor.z, 1.00f);
+	glClearColor(Config::Light::ambientColor.x, Config::Light::ambientColor.y, Config::Light::ambientColor.z, 1.00f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// debug draw
@@ -268,9 +275,11 @@ void renderScean() {
 
 	// render terrain
 	Terrain::render();
+	// Debug(Terrain::render())
 
 	// render entities
 	Entities::render();
+	// Debug(Entities::render())
 
 	// render player
 	Player::render();
@@ -298,7 +307,8 @@ void renderSceanShadow() {
 
 //-----------------------------------------------------------------------------
 Model* createPlane() {
-	float resolution = (float)Display::windowHeight / (float)Display::windowWidth;
+	// float resolution = (float)Display::windowHeight / (float)Display::windowWidth;
+	float resolution = 1.0f;
 
 	// init model
 	Model* plane = new Model();
@@ -459,7 +469,7 @@ void shootShpere(glm::vec3 pos, glm::vec3 dir) {
 
 	model->setPos(pos);
 
-	static float scale = 0.4f;
+	static float scale = 1.0f;
 	model->setScale(
 		glm::vec3(
 			scale,
@@ -469,14 +479,11 @@ void shootShpere(glm::vec3 pos, glm::vec3 dir) {
 	);
 	model->updateTransform();
 
-	// enable depth testing shader
-	// model->setShaderProgram(ShaderLoader::getShader("Select"));
-
 	// init physics
-	PhysicsEntity* body = new PhysicsEntity_Sphere(scale, 5.0f, btVector3(pos.x, pos.y, pos.z));
+	PhysicsEntity* body = new PhysicsEntity_Sphere(scale, scale * 5.0f, btVector3(pos.x, pos.y, pos.z));
 
 	// apply force
-	dir *= 350.0f;
+	dir *= 500.0f;
 	body->rigidBody->applyCentralImpulse(btVector3(dir.x, dir.y, dir.z));
 
 	// set material

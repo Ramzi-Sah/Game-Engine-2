@@ -71,10 +71,6 @@ void Entities::render() {
 
         // render model
         entities[i]->model->render();
-
-        // render physics box
-        if (entities[i]->renderCollider)
-            entities[i]->pysicsEntity->model->render();
     };
 };
 void Entities::renderShadows() {
@@ -164,7 +160,7 @@ void Entities::mouse_button_callback(bool mouseDesabled, int button, int action,
     if (!mouseDesabled) {
         if (action == 1) {
             // std::cout << "mouse clicked: " << mouseXPos << " " << mouseYPos << '\n';
-            
+
             // screen pos to ray
             Ray ray = Camera::rayCast(mouseXPos, mouseYPos);
             // PhysicsDebugDrawer::drawRay(ray, glm::vec3(1.0f, 0.0f, 0.0f));

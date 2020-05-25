@@ -32,11 +32,6 @@ void Entity::update() {
     model->setPos(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
     model->setRot(glm::quat(rot.getW(), rot.getX(), rot.getY(), rot.getZ()));
     model->updateTransform();
-
-    // update physics box transforms
-    pysicsEntity->model->setPos(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
-    pysicsEntity->model->setRot(glm::quat(rot.getW(), rot.getX(), rot.getY(), rot.getZ()));
-    pysicsEntity->model->updateTransform();
 };
 
 //------------------------------------------------------------------------------

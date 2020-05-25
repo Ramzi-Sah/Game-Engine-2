@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "../engine/physics/Physics.hpp"
+#include "../engine/physics/PhysicsEntity.hpp"
 #include "../engine/Model.hpp"
 
 class Entity {

@@ -5,6 +5,7 @@
 glm::mat4 Camera::projection = glm::mat4(1.0f);
 float Camera::nearPlane = Config::Camera::near;
 float Camera::farPlane = Config::Game::viewDistance - Config::Terrain::chunksNbrTiles * sqrt(2); // phytaghore's law
+// float Camera::farPlane = Config::Game::viewDistance;
 float Camera::fov = 45.0f;
 
 float Camera::cascade1 = 100.0f;

@@ -1,13 +1,20 @@
 #include "Line.hpp"
 
-Line::Line(glm::vec3 from, glm::vec3 to) {
-    std::vector<Vertex> vertecies;
+Line::Line() {};
+Line::~Line() {
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+};
 
-    Vertex v = Vertex(from, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
-    vertecies.push_back(v);
-    v = Vertex(to, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f));
-    vertecies.push_back(v);
+//------------------------------------------------------------------------------
+void Line::addLine(glm::vec3 from, glm::vec3 to) {
+    vertecies.push_back(Vertex(from, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+    vertecies.push_back(Vertex(to, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec2(0.0f, 0.0f)));
+};
 
+//------------------------------------------------------------------------------
+void Line::loadVertecies() {
     // generate VAO & VBO
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -27,37 +34,35 @@ Line::Line(glm::vec3 from, glm::vec3 to) {
     glGenBuffers(1, &EBO);
 
     // load ebo with data
-    unsigned int indecies[] = {0, 1};
+    unsigned int indecies[vertecies.size()];
+    for (unsigned int i = 0; i < vertecies.size(); i++) {
+        indecies[i] = i;
+    };
+
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * 2, &indecies[0], GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * vertecies.size(), &indecies[0], GL_STATIC_DRAW);
 
     // unbind VBO & VAO
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 };
 
-Line::~Line() {
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
-};
-
 void Line::render() {
     glUseProgram(ShaderLoader::getShader("Line"));
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glDisable(GL_CULL_FACE);
+    // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    // glDisable(GL_CULL_FACE);
 
-    glUniform3f(
-        glGetUniformLocation(ShaderLoader::getShader("Line"), "u_color"),
-        color.r,
-        color.g,
-        color.b
-    );
+    // glUniform3f(
+    //     glGetUniformLocation(ShaderLoader::getShader("Line"), "u_color"),
+    //     color.r,
+    //     color.g,
+    //     color.b
+    // );
 
     // bind VAO
     glBindVertexArray(VAO);
 
     // draw model
-    glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, nullptr);
+    glDrawElements(GL_LINES, vertecies.size(), GL_UNSIGNED_INT, nullptr);
 };

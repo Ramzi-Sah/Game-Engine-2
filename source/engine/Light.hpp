@@ -18,12 +18,15 @@ private:
     static unsigned int depthMap;
     static glm::vec4 frustumL[8];
 
-public:
     static void setAmbientLight(glm::vec3 _ambientLight);
-    static void createDirectionalLight(glm::vec3 lightDir, glm::vec3 lightColor);
+    static void setDirectionalLight(glm::vec3 lightDir, glm::vec3 lightColor);
+
+public:
+    // update ambient and directional light from config
+    static void updateLightingConfig();
 
     // for fog
-    static void initFog();
+    static void setFog();
 
     // for shadows
     static void initShadowMap();

@@ -50,7 +50,7 @@ void GUI::LoadingMenu(std::string loadingMessage, float progress, float maxVal) 
     glfwPollEvents();
 };
 
-bool GUI::show_demo_window = false;
+bool GUI::show_debug_menu = false;
 void GUI::update(float deltaTime) {
 	// feed inputs to dear imgui, start new frame
     ImGui_ImplOpenGL3_NewFrame();
@@ -149,14 +149,12 @@ void GUI::update(float deltaTime) {
             ImGui::Checkbox("Kinematic", &isKinematic);
             selectedEntity->setKinematicFlag(isKinematic);
 
-
             // show collider
             ImGui::Checkbox("Show Collider", &selectedEntity->renderCollider);
             if (selectedEntity->renderCollider)
                 selectedEntity->pysicsEntity->rigidBody->setCollisionFlags(selectedEntity->pysicsEntity->rigidBody->getCollisionFlags() & ~btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
             else
                 selectedEntity->pysicsEntity->rigidBody->setCollisionFlags(selectedEntity->pysicsEntity->rigidBody->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
-
 
             // set mass
             // float mass = selectedEntity->getMass();
@@ -258,8 +256,60 @@ void GUI::update(float deltaTime) {
     //--------------------------------------------------------------------------
     //--------------------------------------------------------------------------
     // demo panel
+    static bool show_demo_window = false;
     if (show_demo_window) {
         ImGui::ShowDemoWindow(&show_demo_window);
+    };
+    // debug menu
+    static glm::vec2 size = glm::vec2(300.0f, 400.0f);
+    if (show_debug_menu) {
+        ImGui::SetNextWindowPos(ImVec2(0, io->DisplaySize.y-size.y), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(size.x, size.y));
+        ImGui::Begin("debug menu", NULL, ImGuiWindowFlags_NoDecoration);
+
+        // lighting config
+        ImGui::Separator();
+        ImGui::Text("Lighting:");
+
+        ImVec4 ambientLightColor = ImVec4(Config::Light::ambientColor.r, Config::Light::ambientColor.g, Config::Light::ambientColor.b, 0.0f);
+        float directionalLightDir[] = {Config::Light::directionalDir.x, Config::Light::directionalDir.y, Config::Light::directionalDir.z};
+        ImVec4 directionalLightColor = ImVec4(Config::Light::directionalColor.r, Config::Light::directionalColor.g, Config::Light::directionalColor.b, 0.0f);
+
+        ImGui::ColorEdit3("Ambient Light Color", (float*)&ambientLightColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_PickerHueWheel);
+        ImGui::DragFloat3("Sun Direction ", directionalLightDir, 0.01f, -1.0f, 1.0f, "%.2f");
+        ImGui::ColorEdit3("Sun Light Color", (float*)&directionalLightColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_PickerHueWheel);
+
+        Config::Light::ambientColor = glm::vec3(ambientLightColor.x, ambientLightColor.y, ambientLightColor.z);
+        Config::Light::directionalDir = glm::vec3(directionalLightDir[0], directionalLightDir[1], directionalLightDir[2]);
+        Config::Light::directionalColor = glm::vec3(directionalLightColor.x, directionalLightColor.y, directionalLightColor.z);
+
+        Light::updateLightingConfig();
+
+        // fog thikness
+        ImGui::SliderFloat("Fog Thikness", &Config::Game::fogThikness, 0.0f, Config::Game::viewDistance, "%.1f");
+        Light::setFog();
+
+        //------------------------------------------------------------------
+        // other config
+        ImGui::Separator();
+        ImGui::Text("other settings:");
+
+        // gui demo botton
+        if (ImGui::Button("imgui demo window")){
+            show_demo_window = !show_demo_window;
+        }
+
+        // treain debug
+
+        // gradient factor
+        ImGui::SliderFloat("terrain gradient", &Config::Terrain::gradientFactor, -1.0f, 1.0f, "%.2f"); // 0.01f,
+        glUseProgram(ShaderLoader::getShader("Terrain"));
+        glUniform1f(
+            glGetUniformLocation(ShaderLoader::getShader("Terrain"), "u_gradientFactor"),
+            Config::Terrain::gradientFactor
+        );
+
+        ImGui::End();
     };
     //--------------------------------------------------------------------------
 

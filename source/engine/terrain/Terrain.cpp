@@ -131,6 +131,12 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
     // set textures uniform
     glUseProgram(ShaderLoader::getShader("Terrain"));
 
+    // gradient factor
+    glUniform1f(
+        glGetUniformLocation(ShaderLoader::getShader("Terrain"), "u_gradientFactor"),
+        Config::Terrain::gradientFactor
+    );
+
     // grass 1 texture
     glUniform1i(
         glGetUniformLocation(ShaderLoader::getShader("Terrain"), "u_textures.grass"),

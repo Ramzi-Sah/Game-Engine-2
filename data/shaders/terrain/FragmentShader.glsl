@@ -35,6 +35,7 @@ struct Textures {
     sampler2D rock_specular;
 };
 uniform Textures u_textures;
+uniform float u_gradientFactor;
 
 // light
 uniform vec3 ambientLight;
@@ -62,16 +63,27 @@ float shadowCalculation(vec4 fragPosLightSpace) {
     // float shadow = projCoords.z > closestDepth  ? 1.0 : 0.0;
 
 // /*
-    float shadow = 0.0f;
+
     // blur
+    float shadow = 0.0f;
     vec2 texelSize = 1.0 / textureSize(u_shadowMap, 0);
+
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
             float pcfDepth = texture(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += projCoords.z - 0.0002f > pcfDepth ? 1.0 : 0.0;
+            shadow += projCoords.z > pcfDepth ? 1.0 : 0.0;  // projCoords.z - 0.0002f // for bias
         };
     };
     shadow /= 9;
+
+    // int blurDefinition = 20;
+    // for(int x = -blurDefinition/2; x <= blurDefinition/2; ++x) {
+    //     for(int y = -blurDefinition/2; y <= -blurDefinition/2; ++y) {
+    //         float pcfDepth = texture(u_shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+    //         shadow += projCoords.z > pcfDepth ? 1.0 : 0.0;
+    //     };
+    // };
+    // shadow /= blurDefinition+1;
 // */
     return shadow;
 };
@@ -80,7 +92,7 @@ float shadowCalculation(vec4 fragPosLightSpace) {
 uniform vec3 u_fogColor;
 in float v_visibility;
 
-vec3 ambient_tmp, diffuse_tmp, specular_tmp;
+vec3 diffuse_texture, specular_texture;
 float gradCoeficient;
 void main() {
     // shadow calculations
@@ -100,39 +112,36 @@ void main() {
     float spec = pow(max(dot(viewDir, -reflectDir), 0.0f), u_material.shininess);
     vec3 specular = spec * diffuseLightColor * u_material.specular;
 
-    // set textures
-    float gradient = max(dot(vec3(0.0f, 1.0f, 0.0f), v_normal), 0.0f);
-
 // /*
     //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
+    // set textures
+    float gradient = clamp(abs(dot(vec3(0.0f, 1.0f, 0.0f), v_normal)) - u_gradientFactor, 0.0f, 1.0f);
+
     // grass texture
-    ambient_tmp = ambient;
-    diffuse_tmp = diffuse;
-    specular_tmp = specular;
+    gradCoeficient = gradient;
 
-    gradCoeficient = (gradient - 0.0f);
-
-    ambient_tmp *= vec3(texture(u_textures.grass, v_uv)) * gradCoeficient;
-    diffuse_tmp *= vec3(texture(u_textures.grass, v_uv)) * gradCoeficient;
-    specular_tmp *= vec3(texture(u_textures.grass_specular, v_uv)) * gradCoeficient;
-
-    // final color result
-    FragColor = vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
+    diffuse_texture = vec3(texture(u_textures.grass, v_uv)) * gradCoeficient;
+    specular_texture = vec3(texture(u_textures.grass_specular, v_uv)) * gradCoeficient;
 
     //--------------------------------------------------------------------------
     // rock texture
-    ambient_tmp = ambient;
-    diffuse_tmp = diffuse;
-    specular_tmp = specular;
+    gradCoeficient = 1.0f - gradient;
 
-    gradCoeficient = (1.0f - gradient + 0.0f);
+    diffuse_texture += vec3(texture(u_textures.rock, v_uv)) * gradCoeficient;
+    specular_texture += vec3(texture(u_textures.rock_specular, v_uv)) * gradCoeficient;
 
-    ambient_tmp *= vec3(texture(u_textures.rock, v_uv)) * gradCoeficient;
-    diffuse_tmp *= vec3(texture(u_textures.rock, v_uv)) * gradCoeficient;
-    specular_tmp *= vec3(texture(u_textures.rock_specular, v_uv)) * gradCoeficient;
+    // multiply by lighting
+    ambient *= diffuse_texture;
+    diffuse *= diffuse_texture;
+    specular *= specular_texture;
 
-    FragColor += vec4(ambient_tmp + (1.0 - shadow) * (diffuse_tmp + specular_tmp), u_material.opacity);
+    // calculate final fragment color
+    FragColor = vec4(ambient + (1.0 - shadow) * (diffuse + specular), u_material.opacity);
+// */
 
+    //--------------------------------------------------------------------------
+    //--------------------------------------------------------------------------
     // mix with  fog
     FragColor = mix(vec4(u_fogColor, 1.0f), FragColor, v_visibility);
 // */

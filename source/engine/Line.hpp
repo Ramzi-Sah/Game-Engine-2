@@ -19,16 +19,19 @@ private:
     unsigned int VAO;
     unsigned int VBO;
     unsigned int EBO;
+    std::vector<Vertex> vertecies;
 
     void setMaterialUniform();
 
 public:
-    Line(glm::vec3 from, glm::vec3 to);
+    Line();
     ~Line();
 
-    glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
-
+    void addLine(glm::vec3 from, glm::vec3 to);
+    void loadVertecies();
     void render();
+
+    glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
 };
 
 #endif

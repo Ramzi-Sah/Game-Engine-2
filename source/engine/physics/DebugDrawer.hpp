@@ -14,12 +14,15 @@ class PhysicsDebugDrawer : public btIDebugDraw {
 private:
     int m_debugMode;
     static std::vector<Line*> lines;
+    static Line* linesBatch;
 
 public:
     static void render();
     static void dispose();
     static void addLine(Line* line);
     static void drawRay(Ray ray, glm::vec3 color);
+
+    static void debugDrawFinished();
 
     void drawLine(const btVector3& from, const btVector3& to, const btVector3& color);
     void drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color);

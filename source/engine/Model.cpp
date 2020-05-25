@@ -37,11 +37,8 @@ Model::~Model() {
 };
 
 void Model::addVertex(glm::vec3 _position, glm::vec3 _normal, glm::vec2 _uv) {
-    // create new Vertex object
-    Vertex v(_position, _normal, _uv);
-
     // add vertex to model vertices
-    vertecies.push_back(v);
+    vertecies.push_back(Vertex(_position, _normal, _uv));
 };
 
 void Model::loadVertecies(unsigned int _indecies[], unsigned int _numberIndecies, Material _material) {

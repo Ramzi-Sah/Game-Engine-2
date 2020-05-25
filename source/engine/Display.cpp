@@ -107,6 +107,7 @@ void Display::key_callback(GLFWwindow* window, int key, int scancode, int action
     // escape
     if (action == 1) {
         if (key == 256) {
+            GUI::show_debug_menu = false;
             setDisableMouse();
         };
     };
@@ -121,7 +122,10 @@ void Display::key_callback(GLFWwindow* window, int key, int scancode, int action
     // F1 open gui demo
     if (action == 1) {
         if (key == 290) {
-            GUI::show_demo_window = !GUI::show_demo_window;
+            GUI::show_debug_menu = !GUI::show_debug_menu;
+
+            mouseDisabled = GUI::show_debug_menu;
+            setDisableMouse();
         };
         // F2
         if (key == 291) {
@@ -160,10 +164,20 @@ void Display::mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 };
 
 void Display::mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
-    // std::cout << "key: " << key << " | action:" << action<< '\n';
+    // std::cout << "button: " << button << " | action:" << action << '\n';
 
     // handle entities mouse click input event
     Entities::mouse_button_callback(mouseDisabled, button, action, mouseXPos, mouseYPos);
+
+    // handle buttons
+    if (!mouseDisabled)
+        return;
+
+    if (action == 1) {
+        if (button == 0) {
+            debug::shoot();
+        };
+    };
 };
 
 bool Display::mouseDisabled = false;

@@ -1,9 +1,15 @@
-cd build/make/
+# create build directory
+# mkdir -p build
+cd build
 
+# cmake project
 echo ---------------- Compiling ----------------
-cmake ../../ || exit 1
+cmake .. || exit 1
+
+# make project
 make || exit 1
 echo ------------ build successfull ------------
 
-cd ../..
-build/make/SAHEngine
+# execute program
+cd ..
+build/SAHEngine

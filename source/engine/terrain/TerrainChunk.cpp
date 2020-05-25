@@ -21,8 +21,8 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
     // int heightMapPixelIndex = 0;
 
     // calculate pos
-    float posX = posGridX * Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize;
-    float posZ = posGridZ * Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize;
+    posX = posGridX * Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize;
+    posZ = posGridZ * Config::Terrain::chunksNbrTiles * Config::Terrain::tileSize;
 
     static float tilePosX, tilePosZ;
     static float uvPosX, uvPosZ;
@@ -35,17 +35,36 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
         for (int i = 0; i <= Config::Terrain::chunksNbrTiles; i++) {
             tilePosX = i * Config::Terrain::tileSize + posX;
             tilePosZ = j * Config::Terrain::tileSize + posZ;
-            normal = isFlat ? glm::vec3(0.0f, 1.0f, 0.0f) : calculateVertexNormal(tilePosX, tilePosZ);
-            if (!isFlat) heights.push_back(Bioms::getHight(tilePosX, tilePosZ)); // for collider
+
+            if (!isFlat)  {
+                heights.push_back(Bioms::getHight(tilePosX, tilePosZ)); // for collider
+            }
+        };
+	};
+
+    for (int j = 0; j <= Config::Terrain::chunksNbrTiles; j++) {
+        for (int i = 0; i <= Config::Terrain::chunksNbrTiles; i++) {
+            tilePosX = i * Config::Terrain::tileSize + posX;
+            tilePosZ = j * Config::Terrain::tileSize + posZ;
 
             uvPosX = float(i) / float(Config::Terrain::chunksNbrTiles) * uvSizeMult;
             uvPosZ = float(j) / float(Config::Terrain::chunksNbrTiles) * uvSizeMult;
 
-    		chunk->addVertex(
-    			glm::vec3(tilePosX, isFlat ? 0.0f : Bioms::getHight(tilePosX, tilePosZ), tilePosZ),
-    			normal,
-    			glm::vec2(uvPosX, uvPosZ)
-    		);
+            if (!isFlat)  {
+                normal = calculateVertexNormal(i, j);
+
+        		chunk->addVertex(
+        			glm::vec3(tilePosX, heights[i + j * (Config::Terrain::chunksNbrTiles + 1)], tilePosZ),
+        			normal,
+        			glm::vec2(uvPosX, uvPosZ)
+        		);
+            } else {
+                chunk->addVertex(
+        			glm::vec3(tilePosX, 0.0f, tilePosZ),
+        			glm::vec3(0.0f, 1.0f, 0.0f),
+        			glm::vec2(uvPosX, uvPosZ)
+        		);
+            }
 /*
             //------------------------ Textures --------------------------------
             if (!isFlat) {
@@ -144,6 +163,7 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
 */
 
 // /*
+
         // create terrain hight field shape
         btHeightfieldTerrainShape* terrainShape = new btHeightfieldTerrainShape(
             Config::Terrain::chunksNbrTiles + 1,
@@ -175,9 +195,9 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
         body->setActivationState(DISABLE_DEACTIVATION);
         body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_STATIC_OBJECT);
         body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
-        // if (posGridX != 10 || posGridZ != 10) body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
+        // if (posGridX >= 3 || posGridZ >= 3) body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_DISABLE_VISUALIZE_OBJECT);
         // body->setUserPointer(body);
-    };
+    }
     // delete[] heightMap_pixels;
 
     //----------------------------------------------------------------------------
@@ -213,10 +233,29 @@ glm::vec3 TerrainChunk::calculateVertexNormal(int x, int z) {
     // get nearby verticies height
     float H_Up, H_Down, H_Right, H_Left;
 
-    H_Up    = Bioms::getHight(x, z + Config::Terrain::tileSize);
-    H_Down  = Bioms::getHight(x, z - Config::Terrain::tileSize);
-    H_Right = Bioms::getHight(x + Config::Terrain::tileSize, z);
-    H_Left  = Bioms::getHight(x - Config::Terrain::tileSize, z);
+    if (z == Config::Terrain::chunksNbrTiles) {
+        H_Up = Bioms::getHight(x * Config::Terrain::tileSize + posX, (z + 1) * Config::Terrain::tileSize + posZ);
+    } else {
+        H_Up = heights[x + (z + 1) * (Config::Terrain::chunksNbrTiles + 1)];
+    }
+
+    if (z == 0) {
+        H_Down = Bioms::getHight(x * Config::Terrain::tileSize + posX, (z - 1) * Config::Terrain::tileSize + posZ);
+    } else {
+        H_Down  = heights[x + (z - 1) * (Config::Terrain::chunksNbrTiles + 1)];
+    }
+
+    if (x == Config::Terrain::chunksNbrTiles) {
+        H_Left = Bioms::getHight((x + 1) * Config::Terrain::tileSize + posX, z * Config::Terrain::tileSize + posZ);
+    } else {
+        H_Left  = heights[x + 1 + z * (Config::Terrain::chunksNbrTiles + 1)];
+    }
+
+    if (x == 0) {
+        H_Right = Bioms::getHight((x - 1) * Config::Terrain::tileSize + posX, z * Config::Terrain::tileSize + posZ);
+    } else {
+        H_Right = heights[x - 1 + z * (Config::Terrain::chunksNbrTiles + 1)];
+    }
 
     // calculate & return vertex normal
     return glm::normalize(glm::vec3(

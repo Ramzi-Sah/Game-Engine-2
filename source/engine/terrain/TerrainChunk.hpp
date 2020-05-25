@@ -10,8 +10,10 @@
 
 class TerrainChunk {
 private:
-    static glm::vec3 calculateVertexNormal(int x, int z);
+    glm::vec3 calculateVertexNormal(int x, int z);
     std::vector<float> heights; // have to be saved for physics engine
+
+    float posX, posZ;
 
 public:
     TerrainChunk() {};

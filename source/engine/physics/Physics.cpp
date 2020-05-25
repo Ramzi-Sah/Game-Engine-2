@@ -32,6 +32,9 @@ void Physics::debugDraw() {
 
     // debug draw
     world->debugDrawWorld();
+
+    // generate vao
+    PhysicsDebugDrawer::debugDrawFinished();
 };
 
 void Physics::dispose() {

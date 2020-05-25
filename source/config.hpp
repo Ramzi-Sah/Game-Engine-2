@@ -6,17 +6,24 @@
 
 namespace Config {
     namespace Window {
-        static std::string title = "Engine";
-        static unsigned int height = 720;
-        static unsigned int width = height * 16 / 9;
-        static float version = 0.09f;
+        extern std::string title;
+        extern unsigned int height;
+        extern unsigned int width;
+        extern float version;
     };
 
     namespace Game {
-        static float viewDistance = 400.0f;
-        static glm::vec3 fogColor = glm::vec3(0.5f, 0.75f, 1.0f);
-        static float fogThikness = 75.0f;
+        extern float viewDistance;
+        extern glm::vec3 fogColor;
+        extern float fogThikness;
         // TODO: add shadow maps resolution
+    };
+
+    namespace Light {
+        extern glm::vec3 ambientColor;
+
+        extern glm::vec3 directionalDir;
+        extern glm::vec3 directionalColor;
     };
 
     namespace Player {
@@ -45,22 +52,25 @@ namespace Config {
 
     namespace Terrain {
         // mesh
-        static const int chunksNbrTiles = 60; // need to diviseble by islandSize FIXME: texture problem on non even number
-        static const float tileSize = 1.0f;
+        extern const int chunksNbrTiles;
+        extern const float tileSize;
 
         // island
-        static const float islandSize = 1000.0f;
+        extern const float islandSize;
 
         // Bioms
-        static const unsigned int seed = 0;
-        static const float frequancy = 0.003f;
-        static const float amplitude = 15.0f;
-        static const unsigned int elevation = 2;
-        static const unsigned int nbrOctaves = 5;
+        extern const unsigned int seed;
+        extern const float frequancy;
+        extern const float amplitude;
+        extern const unsigned int elevation;
+        extern const unsigned int nbrOctaves;
 
         // borders
-        static const float borderUVSpeed = 0.0005f;
-        static const float uvSizeMult = 50.0f;
+        extern const float borderUVSpeed;
+        extern const float uvSizeMult;
+
+        // textures
+        extern float gradientFactor;
     };
 };
 

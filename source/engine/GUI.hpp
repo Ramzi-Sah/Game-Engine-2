@@ -8,6 +8,7 @@
 #include "Entity.hpp"
 #include "Camera.hpp"
 #include "assets/AssetLoader.hpp"
+#include "Light.hpp"
 
 class GUI {
 private:
@@ -32,7 +33,7 @@ public:
     static Entity* lastSelectedEntity;
 
     // menus
-    static bool show_demo_window;
+    static bool show_debug_menu;
 };
 
 #endif

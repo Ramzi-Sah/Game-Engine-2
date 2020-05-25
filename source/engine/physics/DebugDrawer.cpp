@@ -12,6 +12,8 @@ void PhysicsDebugDrawer::dispose() {
 		delete lines[i];
 	};
 	lines.clear();
+
+	linesBatch = new Line();
 };
 void PhysicsDebugDrawer::addLine(Line* line) {
 	lines.push_back(line);
@@ -19,23 +21,41 @@ void PhysicsDebugDrawer::addLine(Line* line) {
 
 
 void PhysicsDebugDrawer::drawRay(Ray ray, glm::vec3 color) {
-	Line* line = new Line(
+	Line* line = new Line();
+	line->addLine(
 		ray.position,
 		ray.direction
 	);
+	line->loadVertecies();
 	line->color = color;
 	lines.push_back(line);
 };
 
 //------------------------------------------------------------------------------
+Line* PhysicsDebugDrawer::linesBatch = new Line();
+void PhysicsDebugDrawer::debugDrawFinished() {
+	linesBatch->loadVertecies();
+	linesBatch->color = glm::vec3(1.0f, 0.0f, 1.0f);
+	lines.push_back(linesBatch);
+};
+
+//------------------------------------------------------------------------------
 void PhysicsDebugDrawer::drawLine(const btVector3& from, const btVector3& to, const btVector3& color) {
     // std::cout << "physics debug: line should be drawn: " << from.getX() << " " << from.getY() << " " << from.getZ() << '\n';
-	Line* line = new Line(
+	// Line* line = new Line();
+	// line->addLine(
+    //     glm::vec3(from.getX(), from.getY(), from.getZ()),
+    //     glm::vec3(to.getX(), to.getY(), to.getZ())
+    // );
+	// line->loadVertecies();
+	// line->color = glm::vec3(color.getX(), color.getY(), color.getZ());
+	// lines.push_back(line);
+
+	// batch Draw
+	linesBatch->addLine(
         glm::vec3(from.getX(), from.getY(), from.getZ()),
         glm::vec3(to.getX(), to.getY(), to.getZ())
     );
-	line->color = glm::vec3(color.getX(), color.getY(), color.getZ());
-	lines.push_back(line);
 };
 
 void PhysicsDebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color) {

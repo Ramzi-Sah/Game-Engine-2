@@ -1,4 +1,9 @@
 #include "Light.hpp"
+//----------------------------- update config Light ----------------------------
+void Light::updateLightingConfig() {
+	setAmbientLight(Config::Light::ambientColor);
+	setDirectionalLight(Config::Light::directionalDir, Config::Light::directionalColor);
+}
 
 //----------------------------- Ambient Light ----------------------------------
 void Light::setAmbientLight(glm::vec3 _ambientLight) {
@@ -17,13 +22,12 @@ void Light::setAmbientLight(glm::vec3 _ambientLight) {
 //------------------------------ Defuse Light ----------------------------------
 glm::vec3 Light::lightDir;
 glm::mat4 Light::lightView;
-void Light::createDirectionalLight(glm::vec3 _lightDir, glm::vec3 _lightColor) {
+void Light::setDirectionalLight(glm::vec3 _lightDir, glm::vec3 _lightColor) {
     // set light dir
     lightDir = glm::normalize(_lightDir);
 
     // calculate light view
     lightView = glm::lookAt(
-        // lightDir,
         glm::vec3(0.0f, 0.0f, 0.0f),
         lightDir,
         glm::vec3(0.0f, 1.0f, 0.0f)
@@ -50,26 +54,29 @@ void Light::createDirectionalLight(glm::vec3 _lightDir, glm::vec3 _lightColor) {
 };
 
 //-------------------------------- Fog -----------------------------------------
-void Light::initFog() {
+void Light::setFog() {
     // set all shader program's uniforms
     for (auto it = ShaderLoader::shaderPrograms.cbegin(); it != ShaderLoader::shaderPrograms.cend(); ++it) {
         glUseProgram(it->second);
 
         glUniform1f(
             glGetUniformLocation(it->second, "u_fogMinDist"),
-            Config::Game::viewDistance - 100.0f - Config::Game::fogThikness // 100.0f safezone perevent far plane ugly cut
+            Config::Game::viewDistance - Config::Terrain::chunksNbrTiles * sqrt(2) - Config::Game::fogThikness
         );
 
         glUniform1f(
             glGetUniformLocation(it->second, "u_fogMaxDist"),
-            Config::Game::viewDistance - 100.0f // 100.0f safezone perevent far plane ugly cut
+            Config::Game::viewDistance - Config::Terrain::chunksNbrTiles * sqrt(2)
         );
 
         glUniform3f(
             glGetUniformLocation(it->second, "u_fogColor"),
-            Config::Game::fogColor.x,
-            Config::Game::fogColor.y,
-            Config::Game::fogColor.z
+            // Config::Game::fogColor.x,
+            // Config::Game::fogColor.y,
+            // Config::Game::fogColor.z
+            Config::Light::ambientColor.x,
+            Config::Light::ambientColor.y,
+            Config::Light::ambientColor.z
         );
     };
 };
@@ -129,7 +136,7 @@ void Light::recalculateLightSpaceMat(glm::vec4* frustumW) {
     };
 
     // calculate shadow box projection
-    glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, -minZ, -maxZ);
+    glm::mat4 lightProjection = glm::ortho(minX, maxX, minY, maxY, Config::Game::viewDistance/2-minZ, -maxZ);
 
     glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 
