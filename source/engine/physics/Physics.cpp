@@ -73,7 +73,7 @@ btRigidBody* Physics::addSphere(float radius, float mass, btVector3 pos) {
 	btMotionState* motion = new btDefaultMotionState(t);
 
     // create Sphere body
-	btRigidBody::btRigidBodyConstructionInfo info = btRigidBody::btRigidBodyConstructionInfo(mass, motion, sphere, btVector3(1000.0f, 1000.0f, 1000.0f));
+	btRigidBody::btRigidBodyConstructionInfo info = btRigidBody::btRigidBodyConstructionInfo(mass, motion, sphere, btVector3(100.0f, 100.0f, 100.0f));
 	btRigidBody* body = new btRigidBody(info);
 
     // set some attribs
@@ -98,7 +98,7 @@ btRigidBody* Physics::addBox(btVector3 size, float mass, btVector3 pos) {
 	btMotionState* motion = new btDefaultMotionState(t);
 
     // create box body
-	btRigidBody::btRigidBodyConstructionInfo info = btRigidBody::btRigidBodyConstructionInfo(mass, motion, cube, btVector3(1000.0f, 1000.0f, 1000.0f));
+	btRigidBody::btRigidBodyConstructionInfo info = btRigidBody::btRigidBodyConstructionInfo(mass, motion, cube, btVector3(100.0f, 100.0f, 100.0f));
     // info.m_localInertia = btVector3(1000.0f, 1000.0f, 1000.0f);
     // info.m_friction = 1.0f;
 

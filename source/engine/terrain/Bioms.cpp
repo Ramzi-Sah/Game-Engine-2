@@ -14,7 +14,7 @@ float Bioms::getHight(float x, float z) {
     float distance_z = abs(z - Config::Terrain::islandSize * 0.5f);
     float distance = sqrt(pow(distance_x, 2) + pow(distance_z, 2)); // circular mask
 
-    float max_width = Config::Terrain::islandSize * 0.5f - 10.0f;
+    float max_width = Config::Terrain::islandSize / 2 - 100.0f ;
     float delta = distance / max_width;
 
     height *= fmax(0.0f, 1.0f - pow(delta, 2));

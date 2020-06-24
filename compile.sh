@@ -1,5 +1,5 @@
 # create build directory
-# mkdir -p build
+mkdir -p build
 cd build
 
 # cmake project

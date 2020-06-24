@@ -1,15 +1,9 @@
 #
-# File: CMakeLists.txt
+# 	File: CMakeLists.txt
 #   Author: Ramzi Sah
 #
 #   Description:
 #       handles cmake compilation config
-
-# set cmake min version
-cmake_minimum_required(VERSION 3.0.0)
-
-# set c++ compiler min version
-set(CMAKE_CXX_STANDARD 11)
 
 # set build type
 # set(CMAKE_BUILD_TYPE Release)
@@ -17,6 +11,12 @@ set(CMAKE_CXX_STANDARD 11)
 
 # set application type
 # set(CMAKE_CXX_FLAGS "-mwindows")
+
+# set cmake min version
+cmake_minimum_required(VERSION 3.0.0)
+
+# set c++ compiler min version
+set(CMAKE_CXX_STANDARD 11)
 
 # project name
 project (SAHEngine)
@@ -72,6 +72,10 @@ include_directories(
 	"dependencies/imgui"
 )
 
+# assimp
+add_subdirectory(dependencies/assimp-5.0.1)
+include_directories(dependencies/assimp-5.0.1/include)
+
 # include stb_image
 include_directories("dependencies/stb_image")
 
@@ -84,7 +88,7 @@ set(bullet3 BulletDynamics BulletCollision LinearMath)
 add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES})
 
 # Put all libraries into a variable
-set(LIBS glad glfw imgui ${bullet3})
+set(LIBS -static-libgcc -static-libstdc++ glad glfw imgui assimp ${bullet3})
 
 # Define the link libraries
 target_link_libraries(${PROJECT_NAME} ${LIBS})

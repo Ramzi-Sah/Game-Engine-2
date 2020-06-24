@@ -1,6 +1,4 @@
-# Blender v2.82 (sub 7) OBJ File: 'untitled.blend'
-# www.blender.org
-mtllib untitled.mtl
+mtllib axis.mtl
 v -0.025000 -0.025000 -0.025000
 v -0.025000 -0.025000 0.025000
 v -0.025000 0.025000 -0.025000

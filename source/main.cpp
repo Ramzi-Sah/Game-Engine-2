@@ -36,10 +36,10 @@ void shootShpere(glm::vec3 pos, glm::vec3 dir);
 void deleteDebugEntities();
 namespace debug {
 	void spaceBarPressed() {
-		deleteDebugEntities();
-		createCubes(nbrCubes);
+		// deleteDebugEntities();
+		// createCubes(nbrCubes);
 
-		// shootShpere(Camera::getPos(), Camera::getFront());
+		shoot();
 	};
 	void shoot() {
 		shootShpere(Camera::getPos(), Camera::getFront());
@@ -136,7 +136,7 @@ int main() {
 	cam.use();
 
 	// init player
-	Player::init(glm::vec3(200.0f, 3.0f, 200.0f));
+	Player::init(glm::vec3(200.0f, 0.0f, 200.0f));
 
 	// attach camera to player entity
 	Camera::getUsedCam()->attachCurentToEntity(Player::getEntity());
@@ -170,6 +170,17 @@ int main() {
 	// cube->meshGroups[0]->material.specularMap = cam.getFrameTexture();
 	PhysicsEntity* cubeBody = new PhysicsEntity_Box(btVector3(1.0f, 1.0f, 1.0f), 5.0f, btVector3(5.0f, 1.0f, 10.0f));
 	Entities::addEntity(new Entity(cube, cubeBody));
+
+	// sheep
+    Model* sheep = new Model(ModelLoader::getModel("player"));
+    PhysicsEntity* sheepBody = new PhysicsEntity_Box(btVector3(5.0f, 2.0f, 5.0f), 0.0f, btVector3(200, Bioms::getHight(200, 100), 100));
+	Entities::addEntity(new Entity(sheep, sheepBody));
+
+	// debug player
+    // Model* characther = new Model(ModelLoader::getModel("test"));
+    Model* characther = new Model(ModelLoader::getModel("player"));
+    PhysicsEntity* charBody = new PhysicsEntity_Box(btVector3(1.0f, 3.0f, 0.5f), 0.0f, btVector3(100, Bioms::getHight(100, 100) + 3.0f, 100));
+	Entities::addEntity(new Entity(characther, charBody));
 
     //----------------------------------------------------------------------------
 	while (!glfwWindowShouldClose(display.window)) {
@@ -206,7 +217,7 @@ int main() {
 		// Debug(Terrain::update(cameraPos.x, cameraPos.z))
 
 		// update entities
-		Entities::update(cameraPos);
+		Entities::update(cameraPos, deltaTime);
 		// Debug(Entities::update(cameraPos))
 
 		//------------------------- render --------------------------------------
@@ -307,8 +318,8 @@ void renderSceanShadow() {
 
 //-----------------------------------------------------------------------------
 Model* createPlane() {
-	// float resolution = (float)Display::windowHeight / (float)Display::windowWidth;
-	float resolution = 1.0f;
+	float resolution = (float)Display::windowHeight / (float)Display::windowWidth;
+	// float resolution = 1.0f;
 
 	// init model
 	Model* plane = new Model();

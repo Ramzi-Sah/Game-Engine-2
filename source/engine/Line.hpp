@@ -12,7 +12,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "../common/Vertex.hpp"
-#include "assets/AssetLoader.hpp"
+#include "assets/ShaderLoader.hpp"
 
 class Line {
 private:
@@ -31,7 +31,7 @@ public:
     void loadVertecies();
     void render();
 
-    glm::vec3 color = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 color = glm::vec3(1.0f, 1.0f, 1.0f);
 };
 
 #endif

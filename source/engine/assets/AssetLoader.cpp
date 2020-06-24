@@ -29,25 +29,25 @@ void AssetLoader::createShaderPrograms() {
     ShaderLoader::createShaderProgram("Depth", "data/shaders/depth");
     ShaderLoader::createShaderProgram("UV", "data/shaders/uv");
     ShaderLoader::createShaderProgram("Normal", "data/shaders/normal");
+    ShaderLoader::createShaderProgram("Weight", "data/shaders/weight");
 };
 
 void AssetLoader::createModels() {
     // basic Shapes
-    ModelLoader::createModel("cube", "BasicShapes/cube");
-    ModelLoader::createModel("plane", "BasicShapes/plane");
-    ModelLoader::createModel("cone", "BasicShapes/cone");
-    ModelLoader::createModel("sphere", "BasicShapes/sphere");
-    ModelLoader::createModel("icoSphere", "BasicShapes/icoSphere");
-    ModelLoader::createModel("cylinder", "BasicShapes/cylinder");
-    ModelLoader::createModel("suzanne", "BasicShapes/suzanne");
+    ModelLoader::createModel("cube", "BasicShapes/cube/cube.obj");
+    ModelLoader::createModel("plane", "BasicShapes/plane/plane.obj");
+    ModelLoader::createModel("cone", "BasicShapes/cone/cone.obj");
+    ModelLoader::createModel("sphere", "BasicShapes/sphere/sphere.obj");
+    ModelLoader::createModel("icoSphere", "BasicShapes/icoSphere/icoSphere.obj");
+    ModelLoader::createModel("cylinder", "BasicShapes/cylinder/cylinder.obj");
 
     // models
-    ModelLoader::createModel("player", "player");
-    ModelLoader::createModel("tree", "tree");
-    ModelLoader::createModel("grass", "grass");
+    ModelLoader::createModel("player", "player/playerArmature.dae");
+    ModelLoader::createModel("tree", "tree/tree.obj");
+    ModelLoader::createModel("grass", "grass/grass.obj");
 
     // UI
-    ModelLoader::createModel("axis", "UI/axis");
+    ModelLoader::createModel("axis", "UI/axis/axis.obj");
 };
 
 void AssetLoader::createTextures() {
@@ -59,10 +59,6 @@ void AssetLoader::createTextures() {
 
     // world border
     TextureLoader::createTexture("worldBorder", "data/textures/terrain/borders.png", true, GL_REPEAT);
-
-    //grass 1
-    TextureLoader::createTexture("grass1Defuse", "data/textures/grass/grass1/grass01.jpg", false, GL_REPEAT);
-    TextureLoader::createTexture("grass1Specular", "data/textures/grass/grass1/grass01_s.jpg", false, GL_REPEAT);
 
     //---------------------------------------------------------------------------
     // container

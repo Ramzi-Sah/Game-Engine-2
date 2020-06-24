@@ -21,7 +21,7 @@ Entity::~Entity() {
 };
 
 //------------------------------------------------------------------------------
-void Entity::update() {
+void Entity::update(float deltaTime) {
     // get physics
     // pysicsEntity->rigidBody->getMotionState()->getWorldTransform(transform);
     transform = pysicsEntity->rigidBody->getWorldTransform();
@@ -32,6 +32,9 @@ void Entity::update() {
     model->setPos(glm::vec3(pos.getX(), pos.getY(), pos.getZ()));
     model->setRot(glm::quat(rot.getW(), rot.getX(), rot.getY(), rot.getZ()));
     model->updateTransform();
+
+    // update animation
+    model->updateAnimation(deltaTime);
 };
 
 //------------------------------------------------------------------------------

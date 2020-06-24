@@ -5,6 +5,8 @@
 #include "../engine/assets/TextureLoader.hpp"
 
 struct Material {
+    std::string name = "SAH_MATERIAL_NO_NAME";
+
     glm::vec3 ambient = glm::vec3(1.0f, 1.0f, 1.0f);
 
     glm::vec3 diffuse = glm::vec3(1.0f, 1.0f, 1.0f);

@@ -27,6 +27,9 @@ Model::Model(Model* _model) {
         // push to meshGroups vector
         meshGroups.push_back(meshGroup);
     };
+
+    // copy model animation
+    animationManager = _model->animationManager;
 };
 
 Model::~Model() {
@@ -41,6 +44,11 @@ void Model::addVertex(glm::vec3 _position, glm::vec3 _normal, glm::vec2 _uv) {
     vertecies.push_back(Vertex(_position, _normal, _uv));
 };
 
+void Model::addVertex(glm::vec3 _position, glm::vec3 _normal, glm::vec2 _uv, glm::ivec4 _BoneIDs, glm::vec4 _Weights) {
+    // add vertex to model vertices
+    vertecies.push_back(Vertex(_position, _normal, _uv, _BoneIDs, _Weights));
+};
+
 void Model::loadVertecies(unsigned int _indecies[], unsigned int _numberIndecies, Material _material) {
     // new meshGroup
     MeshGroup* meshGroup = new MeshGroup();
@@ -49,6 +57,7 @@ void Model::loadVertecies(unsigned int _indecies[], unsigned int _numberIndecies
     meshGroup->material = _material;
 
     // get model size Bytes for monitoring
+    meshGroup->numberVertecies = vertecies.size();
     modelSize += sizeof(Vertex) * vertecies.size();
 
     // generate VAO & VBO
@@ -72,6 +81,12 @@ void Model::loadVertecies(unsigned int _indecies[], unsigned int _numberIndecies
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(sizeof(float)*6)); // set uv vertex attrib
     glEnableVertexAttribArray(2);
 
+    glVertexAttribIPointer(3, 4, GL_INT, sizeof(Vertex), (const void*)(sizeof(float)*8)); // set BoneIDs vertex attrib
+    glEnableVertexAttribArray(3);
+
+    glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(sizeof(float)*12)); // set Weights vertex attrib
+    glEnableVertexAttribArray(4);
+
     // create Eelement Buffer object
     glGenBuffers(1, &(meshGroup->EBO));
 
@@ -87,10 +102,11 @@ void Model::loadVertecies(unsigned int _indecies[], unsigned int _numberIndecies
     // add to meshGroups vector
     meshGroups.push_back(meshGroup);
 
-    // pop all vertecies
+    // clear all vertecies for new meshgroup
     vertecies.clear();
 };
 
+//------------------------------------------------------------------------------
 void Model::draw() {
     // draw meshGroups
     for (int i = 0; i < meshGroups.size(); i++) {
@@ -104,6 +120,7 @@ void Model::draw() {
         glDrawElements(GL_TRIANGLES, meshGroups[i]->numberIndecies, GL_UNSIGNED_INT, nullptr);
     };
 };
+
 void Model::render() {
     if (faceCulled)
         glEnable(GL_CULL_FACE);
@@ -128,9 +145,13 @@ void Model::render() {
         // set uniforms
         setModelMatrixUniform();
 
+        // set animation uniforms
+        setAnimationBonesTransformUniform();
+
         // draw vertecies
         draw();
     } else {
+/*
         // enable sentencil
         glEnable(GL_STENCIL_TEST);
 
@@ -139,7 +160,7 @@ void Model::render() {
 
         // write 0xff on sentecil buffer
         glStencilMask(0xFF);
-
+*/
         if (hoovered) {
             // use hoover shader
             setShaderProgram(ShaderLoader::getShader("Hoover"));
@@ -153,13 +174,16 @@ void Model::render() {
         // set polygone mode
         glPolygonMode(GL_FRONT_AND_BACK, polygoneMode);
 
+        // set animation uniforms
+        setAnimationBonesTransformUniform();
+
         // set uniforms
-        modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.95f, 0.95f, 0.95f));
+        // modelMatrix *= glm::scale(glm::mat4(1.0f), glm::vec3(0.95f, 0.95f, 0.95f));
         setModelMatrixUniform();
 
         // draw vertecies
         draw();
-
+/*
         // draw only when sentecil fragment != 0xff
         glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
 
@@ -184,6 +208,7 @@ void Model::render() {
 
         // enable sentencil
         glDisable(GL_STENCIL_TEST);
+*/
     };
 };
 void Model::renderShadow() {
@@ -191,12 +216,12 @@ void Model::renderShadow() {
     if (!castShadow)
         return;
 
-    // use main shader program
+    // use shadow depth shader program
     setShaderProgram(ShaderLoader::getShader("ShadowDepth"));
     glUseProgram(shaderProgram);
 
-    // set polygone mode
-    glPolygonMode(GL_FRONT_AND_BACK, polygoneMode);
+    // set bones uniform for shadow
+    setAnimationBonesTransformShadowUniform();
 
     // set uniforms
     setModelMatrixUniform();
@@ -229,6 +254,91 @@ void Model::renderFrame(unsigned int texture) {
     draw();
 };
 
+void Model::updateAnimation(float deltaTime) {
+    // check if model has an animation
+    if (animationManager.animations.size() == 0)
+        return;
+
+    // update animation manager
+    animationManager.update(deltaTime);
+
+    // update skeleton draw
+    if (animationManager.renderSkeleton) {
+        drawSkeleton(0, glm::vec3(0.0f, 0.0f, 0.0f));
+    };
+};
+void Model::drawSkeleton(int boneId, glm::vec3 parentPos) {
+    glm::mat4 offsetMatInv = animationManager.bones[boneId].transform * glm::inverse(animationManager.bones[boneId].offsetMatrix);
+    glm::vec3 bonePos = glm::vec3(modelMatrix * glm::vec4(offsetMatInv[3][0], offsetMatInv[3][1], offsetMatInv[3][2], 1.0f));
+    if (parentPos == glm::vec3(0.0f)) parentPos = bonePos;
+
+    delete animationManager.bones[boneId].line;
+    animationManager.bones[boneId].line = new Line();
+	animationManager.bones[boneId].line->addLine(
+        bonePos,
+		parentPos
+	);
+	animationManager.bones[boneId].line->loadVertecies();
+	animationManager.bones[boneId].line->color = glm::vec3(0.0f, 1.0f, 0.0f);
+
+    // draw its children bones
+    for (int j = 0; j < animationManager.bones[boneId].childrenBonesIds.size(); j++) {
+        drawSkeleton(animationManager.bones[boneId].childrenBonesIds[j], bonePos);
+    };
+
+};
+void Model::skeletonRender(int boneId) {
+    glDisable(GL_DEPTH_TEST);
+    animationManager.bones[boneId].line->render();
+    glEnable(GL_DEPTH_TEST);
+
+    // draw its children bones
+    for (int j = 0; j < animationManager.bones[boneId].childrenBonesIds.size(); j++) {
+        skeletonRender(animationManager.bones[boneId].childrenBonesIds[j]);
+    };
+};
+
+/*-----------------------------------------------------------------------------*/
+void Model::setAnimationBonesTransformUniform() {
+    for (int i = 0; i < animationManager.bones.size(); i++) {
+        // vertex uniform name
+        std::string uniformName;
+        std::stringstream ss;
+        ss << "u_BonesTransform[";
+        ss << i;
+        ss << "]";
+        ss >> uniformName;
+
+        // set uniform
+        glUniformMatrix4fv(
+            glGetUniformLocation(shaderProgram, uniformName.c_str()),
+            1,
+            GL_FALSE,
+            glm::value_ptr(animationManager.bones[i].transform)
+        );
+    };
+};
+
+void Model::setAnimationBonesTransformShadowUniform() {
+    for (int i = 0; i < animationManager.bones.size(); i++) {
+        // vertex uniform name
+        std::string uniformName;
+        std::stringstream ss;
+        ss << "u_BonesTransform[";
+        ss << i;
+        ss << "]";
+        ss >> uniformName;
+
+        // set uniform
+        glUniformMatrix4fv(
+            glGetUniformLocation(ShaderLoader::getShader("ShadowDepth"), uniformName.c_str()),
+            1,
+            GL_FALSE,
+            glm::value_ptr(animationManager.bones[i].transform)
+        );
+    };
+};
+
 /*-----------------------------------------------------------------------------*/
 void Model::setModelMatrixUniform() {
     // set model matrix transform uniform
@@ -250,7 +360,7 @@ void Model::setRot(float _angle, glm::vec3 _axes) {
 };
 void Model::setRot(glm::quat _rotation) {
     // set rotation from quaternion
-    rotation = glm::toMat4(_rotation);
+    rotation = glm::mat4(_rotation);
 };
 void Model::setScale(glm::vec3 _scale) {
     // set rotation

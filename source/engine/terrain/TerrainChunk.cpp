@@ -223,8 +223,8 @@ TerrainChunk::TerrainChunk(int posGridX, int posGridZ, bool isFlat) {
 
     chunk->meshGroups[0]->material.ambient = glm::vec3(1.0f, 1.0f, 1.0f);
     chunk->meshGroups[0]->material.diffuse = glm::vec3(1.0f, 1.0f, 1.0f);
-    chunk->meshGroups[0]->material.specular = glm::vec3(0.1f, 0.1f, 0.1f);
-    chunk->meshGroups[0]->material.shininess = 8.0f;
+    chunk->meshGroups[0]->material.specular = glm::vec3(0.15f, 0.15f, 0.15f);
+    chunk->meshGroups[0]->material.shininess = 2.0f;
 };
 
 glm::vec3 TerrainChunk::calculateVertexNormal(int x, int z) {

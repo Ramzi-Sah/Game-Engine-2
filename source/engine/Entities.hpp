@@ -23,7 +23,7 @@ public:
     static Entity* getEntity(Model* _model);
     static bool checkEntity(Entity* _entity);
 
-    static void update(glm::vec3 camPos);
+    static void update(glm::vec3 camPos, float deltaTime);
     static void render();
     static void renderShadows();
 

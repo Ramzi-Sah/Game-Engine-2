@@ -44,7 +44,7 @@ bool Entities::checkEntity(Entity* _entity) {
     return false;
 };
 //------------------------------------------------------------------------------
-void Entities::update(glm::vec3 camPos) {
+void Entities::update(glm::vec3 camPos, float deltaTime) {
     // update all entities
     for (int i = 0; i < entities.size(); i++) {
         // check if with in view distance
@@ -59,10 +59,13 @@ void Entities::update(glm::vec3 camPos) {
         if (!entities[i]->enabled)
             continue;
 
-        entities[i]->update();
+        // recalculate transforms from physics engine
+        entities[i]->update(deltaTime);
     };
 };
 void Entities::render() {
+    GUI::nbrRenderedEntities = 0;
+
     // render all entities
     for (int i = 0; i < entities.size(); i++) {
         // check if enabled
@@ -71,6 +74,13 @@ void Entities::render() {
 
         // render model
         entities[i]->model->render();
+
+        // render skeleton
+        if (entities[i]->model->animationManager.renderSkeleton)
+            if (entities[i]->model->animationManager.animations.size() != 0)
+                entities[i]->model->skeletonRender(0);
+
+        GUI::nbrRenderedEntities++;
     };
 };
 void Entities::renderShadows() {

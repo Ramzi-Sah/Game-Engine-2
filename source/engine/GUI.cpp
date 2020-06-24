@@ -85,7 +85,7 @@ void GUI::update(float deltaTime) {
         ImGui::Text("SAH Engine V%.2f", Config::Window::version);
         // ImGui::Separator();
         ImGui::Text("FPS: %i (%.2f ms)", FPS, deltaTime*1000);
-        ImGui::Text("Number of Entities: %u", nbrEntities);
+        ImGui::Text("Number of Entities: %u / %u", nbrRenderedEntities, nbrEntities);
 
         ImGui::End();
         //--------------------------------------------------------------------------
@@ -131,9 +131,21 @@ void GUI::update(float deltaTime) {
 
             // rotation
             glm::vec3 rotation = glm::degrees(glm::eulerAngles(selectedEntity->getRot()));
+
             float vec3fRotation[] = {rotation.x, rotation.y, rotation.z};
             ImGui::DragFloat3("Rotation", vec3fRotation, 1.0f);
-            selectedEntity->setRot(glm::quat(glm::radians(glm::vec3(vec3fRotation[0], vec3fRotation[1], vec3fRotation[2]))));
+            rotation = glm::radians(glm::vec3(vec3fRotation[0], vec3fRotation[1], vec3fRotation[2]));
+
+            selectedEntity->setRot(glm::quat(rotation));
+
+
+
+
+
+
+
+
+
 
             // Pysics propraities ------------------------------------------------------------------------
             ImGui::Separator();
@@ -167,11 +179,12 @@ void GUI::update(float deltaTime) {
 
             // mesh groups
             ImGui::Text("Number of mesh groups: %lu", selectedEntity->model->meshGroups.size());
-            const char* modelMeshGroups[selectedEntity->model->meshGroups.size()];
             static int modelMeshGroup_current = 0;
             if (selectedEntity != lastSelectedEntity) modelMeshGroup_current = 0; // reset current meshGroup if changed entity
+            const char* modelMeshGroups[selectedEntity->model->meshGroups.size()];
             for (int i = 0; i < selectedEntity->model->meshGroups.size(); i++) {
-                std::string meshGroupName = "meshgroup " + std::to_string(i);
+                std::string meshGroupName = selectedEntity->model->meshGroups[i]->material.name;
+                if (meshGroupName == "SAH_MATERIAL_NO_NAME") meshGroupName = "material";
                 modelMeshGroups[i] = meshGroupName.c_str();
             };
             ImGui::Combo("Mesh Groups", &modelMeshGroup_current, modelMeshGroups, selectedEntity->model->meshGroups.size());
@@ -199,6 +212,78 @@ void GUI::update(float deltaTime) {
             float opacity = selectedEntity->model->meshGroups[modelMeshGroup_current]->material.opacity;
             ImGui::SliderFloat("Opacity", &opacity, 0.0f, 1.0f, "%.2f");
             selectedEntity->model->meshGroups[modelMeshGroup_current]->material.opacity = opacity;
+
+            // riging propraities ------------------------------------------------------------------------
+            ImGui::Separator();
+            ImGui::Text("Riging Proprities:");
+
+            // set animation
+            int nbrBones = selectedEntity->model->animationManager.bones.size();
+            int nbrAnimations = selectedEntity->model->animationManager.animations.size() + 1;
+            ImGui::Text("Number of animations: %u", nbrAnimations - 1);
+            if (nbrAnimations - 1 > 0) {
+                static int animation_current = selectedEntity->model->animationManager.actualAnimationIndex + 1;
+                const char* animations[nbrAnimations];
+                animations[0] = "no animation";
+                for (int i = 0; i < nbrAnimations-1; i++) {
+                    animations[i + 1] = selectedEntity->model->animationManager.animations[i].name.c_str();
+                };
+
+                ImGui::Combo("animations", &animation_current, animations, nbrAnimations);
+                selectedEntity->model->animationManager.setAnimation(animation_current - 1);
+
+                if (animation_current != 0) {
+                    ImGui::Text("animation duration: %.2f", selectedEntity->model->animationManager.animations[animation_current-1].duration);
+                    ImGui::Text("animation duration: %.2f", selectedEntity->model->animationManager.animations[animation_current-1].time);
+                };
+
+                // bones
+                ImGui::Text("Number of bones: %u", nbrBones);
+                if (nbrBones > 0) {
+                    // render skeleton
+                    ImGui::Checkbox("Show Skeleton", &selectedEntity->model->animationManager.renderSkeleton);
+/*
+                    // select bone
+                    static int bone_current = 0;
+                    const char* bones[nbrBones];
+                    for (int i = 0; i < nbrBones; i++) {
+                        bones[i] = selectedEntity->model->animationManager.bones[i].name.c_str();
+                    };
+                    ImGui::Combo("bones", &bone_current, bones, nbrBones);
+
+                    //// transform bone
+                    glm::mat4 boneTransform = selectedEntity->model->animationManager.bones[bone_current].nodeTransform;
+
+                    /// position
+                    float vec3fPosition[] = {boneTransform[3][0], boneTransform[3][1], boneTransform[3][2]};
+                    ImGui::DragFloat3("Bone Position", vec3fPosition, 0.1f);
+                    glm::vec3 position = glm::vec3(vec3fPosition[0], vec3fPosition[1], vec3fPosition[2]);
+
+                    /// rotation
+                    glm::vec3 rotation = glm::degrees(glm::eulerAngles(glm::quat(boneTransform)));
+                    float vec3fRotation[] = {rotation.x, rotation.y, rotation.z};
+                    ImGui::DragFloat3("Bone Rotation", vec3fRotation, 1.0f);
+                    glm::quat rotation_quat = glm::quat(glm::radians(glm::vec3(vec3fRotation[0], vec3fRotation[1], vec3fRotation[2])));
+
+                    // combine rotation and translation
+                    glm::mat4 boneNewTransform = glm::mat4(1.0f);
+                    boneNewTransform = glm::translate(boneNewTransform, position);
+                    boneNewTransform *= glm::mat4(rotation_quat);
+
+                    // apply bone transforms
+                    selectedEntity->model->animationManager.bones[bone_current].nodeTransform = boneNewTransform;
+*/
+                };
+
+            };
+
+
+
+
+
+
+
+
 
             // more propraities ------------------------------------------------------------------------
             ImGui::Separator();
@@ -230,7 +315,7 @@ void GUI::update(float deltaTime) {
             int shaders_i = 0;
             static int shader_current = 0;
             for (auto it = ShaderLoader::shaderPrograms.cbegin(); it != ShaderLoader::shaderPrograms.cend(); ++it) {
-                if (it->first != "Default" && it->first != "DefaultPotato" && it->first != "Depth" && it->first != "UV" && it->first != "Normal") continue; // remove some shaders
+                if (it->first != "Default" && it->first != "DefaultPotato" && it->first != "Depth" && it->first != "UV" && it->first != "Normal" && it->first != "Weight") continue; // remove some shaders
                 if (selectedEntity->model->getMainShaderProgram() == it->second) shader_current = shaders_i; // reset selected shader to model shader
                 shaders[shaders_i] = (it->first).c_str();
                 shaders_i++;
@@ -416,5 +501,6 @@ void GUI::setTheme() {
 //------------------------------------------------------------------------------
 bool GUI::mouseDisabled = false;
 unsigned int GUI::nbrEntities = 0;
+unsigned int GUI::nbrRenderedEntities = 0;
 Entity* GUI::selectedEntity = nullptr;
 Entity* GUI::lastSelectedEntity = nullptr;

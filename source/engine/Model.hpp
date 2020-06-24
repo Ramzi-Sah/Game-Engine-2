@@ -2,24 +2,26 @@
 #define SAH_MODEL
 
 #include <vector>
+#include <sstream>
 
 #include <glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 #include "assets/ShaderLoader.hpp"
 #include "assets/TextureLoader.hpp"
 #include "../common/Vertex.hpp"
 #include "../common/Material.hpp"
+#include "AnimationManager.hpp"
 
 struct MeshGroup {
     unsigned int VAO;
     unsigned int VBO;
     unsigned int EBO;
+    unsigned int numberVertecies;
     unsigned int numberIndecies;
 
     Material material;
@@ -40,8 +42,6 @@ struct MeshGroup {
 
 class Model {
 private:
-    std::vector<Vertex> vertecies;
-
     // for render
     void setShaderProgram(unsigned int _shaderProgram);
     unsigned int shaderProgram = ShaderLoader::getShader("Default");
@@ -61,12 +61,18 @@ private:
     // material
     void setMaterialUniform(Material _material);
 
+    // for animation
+    void setAnimationBonesTransformUniform();
+    void setAnimationBonesTransformShadowUniform();
+
 public:
     Model();
     Model(Model* _model);
     ~Model();
 
+    std::vector<Vertex> vertecies;
     void addVertex(glm::vec3 _position, glm::vec3 _normal, glm::vec2 _uv);
+    void addVertex(glm::vec3 _position, glm::vec3 _normal, glm::vec2 _uv, glm::ivec4 _BoneIDs, glm::vec4 _Weights);
     void loadVertecies(unsigned int _indecies[], unsigned int _numberIndecies, Material _material);
 
     void render();
@@ -92,6 +98,12 @@ public:
     void updateTransform();
 
     std::vector<MeshGroup*> meshGroups;
+
+    // for animation
+    ModelAnimationManager animationManager;
+    void updateAnimation(float deltaTime);
+    void drawSkeleton(int boneId, glm::vec3 parentPos);
+    void skeletonRender(int boneId);
 };
 
 #endif

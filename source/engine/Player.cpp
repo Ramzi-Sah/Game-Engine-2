@@ -20,15 +20,18 @@ void Player::update(float deltaTime) {
     inputUpdate(deltaTime);
 
     // update player
-    playerEntity->update();
+    playerEntity->update(deltaTime);
 };
 void Player::render() {
-    // do not render body if in first person mode
+    // do not render body entities[i]if in first person mode
     if (viewMode == FIRST_PERSON && playerEntity->cameraAttached)
         return;
 
     // render player
     playerEntity->model->render();
+
+    // render skeleton
+    // playerEntity->model->animationManager.skeletonRender(0);
 
     // render collider
     // playerEntity->pysicsEntity->model->render();
@@ -51,18 +54,24 @@ void Player::inputUpdate(float deltaTime) {
     if (!playerEntity->cameraAttached)
         return;
 
-    // move camera
+    playerEntity->model->animationManager.setAnimation(-1);
+
+    // move
     if (input_forward) {
         position += Config::Player::speed * front * deltaTime;
+        playerEntity->model->animationManager.setAnimation("walk");
     };
     if (input_backward) {
         position -= Config::Player::speed * front * deltaTime;
+        playerEntity->model->animationManager.setAnimation("walk");
     };
     if (input_right) {
         position += Config::Player::speed * glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)) * deltaTime;
+        playerEntity->model->animationManager.setAnimation("walk");
     };
     if (input_left) {
         position -= Config::Player::speed * glm::cross(front, glm::vec3(0.0f, 1.0f, 0.0f)) * deltaTime;
+        playerEntity->model->animationManager.setAnimation("walk");
     };
 
     position.y = Bioms::getHight(position.x, position.z) + 3.0f;

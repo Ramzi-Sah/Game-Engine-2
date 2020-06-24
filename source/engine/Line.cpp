@@ -53,12 +53,12 @@ void Line::render() {
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     // glDisable(GL_CULL_FACE);
 
-    // glUniform3f(
-    //     glGetUniformLocation(ShaderLoader::getShader("Line"), "u_color"),
-    //     color.r,
-    //     color.g,
-    //     color.b
-    // );
+    glUniform3f(
+        glGetUniformLocation(ShaderLoader::getShader("Line"), "u_color"),
+        color.r,
+        color.g,
+        color.b
+    );
 
     // bind VAO
     glBindVertexArray(VAO);

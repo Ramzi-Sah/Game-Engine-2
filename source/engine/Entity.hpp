@@ -25,7 +25,7 @@ public:
     Model* model;
     PhysicsEntity* pysicsEntity;
 
-    void update();
+    void update(float deltaTime);
     bool enabled = true;
     bool optimize = true;
     bool cameraAttached = false;
@@ -55,7 +55,6 @@ public:
     // parameters
     glm::vec3 cameraOffsetPos = glm::vec3(0.0f, 0.0f, 0.0f);
     float cameraDistance = 30.0f;
-
 };
 
 #endif

@@ -35,7 +35,6 @@ void PhysicsDebugDrawer::drawRay(Ray ray, glm::vec3 color) {
 Line* PhysicsDebugDrawer::linesBatch = new Line();
 void PhysicsDebugDrawer::debugDrawFinished() {
 	linesBatch->loadVertecies();
-	linesBatch->color = glm::vec3(1.0f, 0.0f, 1.0f);
 	lines.push_back(linesBatch);
 };
 
@@ -56,6 +55,7 @@ void PhysicsDebugDrawer::drawLine(const btVector3& from, const btVector3& to, co
         glm::vec3(from.getX(), from.getY(), from.getZ()),
         glm::vec3(to.getX(), to.getY(), to.getZ())
     );
+	linesBatch->color = glm::vec3(color.getX(), color.getY(), color.getZ());
 };
 
 void PhysicsDebugDrawer::drawBox(const btVector3& bbMin, const btVector3& bbMax, const btVector3& color) {

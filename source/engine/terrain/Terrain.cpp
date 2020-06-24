@@ -143,7 +143,7 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
         4
     );
     glActiveTexture(GL_TEXTURE4);
-    glBindTexture(GL_TEXTURE_2D, TextureLoader::getTexture("grass1Defuse"));
+    glBindTexture(GL_TEXTURE_2D, TextureLoader::getTexture("grass"));
 
     // grass 1 specular texture
     glUniform1i(
@@ -151,7 +151,7 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
         5
     );
     glActiveTexture(GL_TEXTURE5);
-    glBindTexture(GL_TEXTURE_2D, TextureLoader::getTexture("grass1Specular"));
+    glBindTexture(GL_TEXTURE_2D, TextureLoader::getTexture("white"));
 
     // rock 1 texture
     glUniform1i(
@@ -185,7 +185,7 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
         treeEnt->cameraOffsetPos = glm::vec3(0.0f, 7.5f, 0.0f);
 		Entities::addEntity(treeEnt);
 	};
-
+// /*
 	// grass
 	for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 1.0f; i++) {
 		Model* grass = new Model(ModelLoader::getModel("grass"));
@@ -201,6 +201,43 @@ void Terrain::create(float posX, float posZ, GLFWwindow* window) {
         grassEnt->setStaticFlag(true);
 		Entities::addEntity(grassEnt);
 	};
+// */
+
+    // Model* grass = new Model();
+	// for (int i = 0; i < static_cast<int>(Config::Terrain::islandSize) * 1.0f; i++) {
+    //     // model matrix
+    //     float posX = rand() % int(Config::Terrain::islandSize);
+    // 	float posZ = rand() % int(Config::Terrain::islandSize);
+    //     float posY = Bioms::getHight(posX, posZ);
+    //
+    //     glm::mat4 model_mat = glm::translate(glm::mat4(1.0f), glm::vec3(posX, posZ, posY));
+    //
+    //     for (int i = 0; i < ModelLoader::getModel("grass")->vertecies.size(); i++) {
+    //         grass->addVertex(
+    //             glm::vec3(model_mat * glm::vec4(ModelLoader::getModel("grass")->vertecies[i].position, 1.0f)),
+    //             ModelLoader::getModel("grass")->vertecies[i].normal,
+    //             ModelLoader::getModel("grass")->vertecies[i].uv
+    //         );
+    //     };
+	// };
+    //
+    // unsigned int grass_batch_nbrIndecies = static_cast<int>(Config::Terrain::islandSize) * 10.0f * ModelLoader::getModel("grass")->vertecies.size();
+    // unsigned int grass_batch_indecies[grass_batch_nbrIndecies];
+    // for (unsigned int k = 0; k < grass_batch_nbrIndecies; k++) {
+    //     grass_batch_indecies[k] = k;
+    // };
+    //
+    // grass->loadVertecies(grass_batch_indecies, grass_batch_nbrIndecies, Material());
+	// grass->setMainShaderProgram(ShaderLoader::getShader("Grass"));
+	// grass->meshGroups[0]->material.diffuseMap = TextureLoader::getTexture("grassModelDefuse");
+	// grass->faceCulled = false;
+	// grass->castShadow = false;
+    //
+	// PhysicsEntity* grassBody = new PhysicsEntity_Box(btVector3(0.0f, 0.0f, 0.0f), 0.0f, btVector3(0.0f, 0.0f, 0.0f));
+	// Entity* grassEnt = new Entity(grass, grassBody);
+	// // grassEnt->setRot(glm::quat(glm::radians(float(rand() % 360)), glm::vec3(0.0f, 1.0f, 0.0f)));
+    // grassEnt->setStaticFlag(true);
+	// Entities::addEntity(grassEnt);
 
 };
 void Terrain::dispose() {
@@ -224,7 +261,7 @@ void Terrain::render() {
             terrainChunks[i][j]->render();
         };
     };
-
+// /*
     // render borders
     // set border uv offset uniform
     static float uvOffset = 0.0f;
@@ -239,6 +276,7 @@ void Terrain::render() {
         // terrainBorders[i]->meshGroups[0]->material.ambient = borderColor;
         terrainBorders[i]->render();
     };
+// */
 };
 void Terrain::renderShadow() {
     for (int i = 0; i < chunksViewDistance; i++) {

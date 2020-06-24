@@ -27,7 +27,6 @@ Display::Display(std::string title, unsigned int window_width, unsigned int wind
         std::cout << "ERROR: can't open a window." << std::endl;
     };
 
-
     // register glfw functions
     glfwSetErrorCallback(error_callback);
     glfwSetKeyCallback(window, key_callback);
@@ -175,7 +174,7 @@ void Display::mouse_button_callback(GLFWwindow* window, int button, int action, 
 
     if (action == 1) {
         if (button == 0) {
-            debug::shoot();
+            // debug::shoot();
         };
     };
 };
